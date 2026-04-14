@@ -1,0 +1,88 @@
+{% extends 'authority/base.html' %}
+
+{% block title %}Dashboard - Authority Portal{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-2xl font-bold text-black mb-2">Welcome, {{ user.username }}! 👋</h2>
+        <p class="text-gray-600">Authority Management Portal - Manage your campus cafeteria menu.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Total Menu Items</p>
+                    <p class="text-3xl font-bold text-black">{{ total_items }}</p>
+                </div>
+                <div class="w-14 h-14 bg-black rounded-lg flex items-center justify-center">
+                    <i class="fas fa-list text-white text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Available Items</p>
+                    <p class="text-3xl font-bold text-green-600">{{ available_items }}</p>
+                </div>
+                <div class="w-14 h-14 bg-green-600 rounded-lg flex items-center justify-center">
+                    <i class="fas fa-check-circle text-white text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Categories</p>
+                    <p class="text-3xl font-bold text-black">{{ categories|length }}</p>
+                </div>
+                <div class="w-14 h-14 bg-black rounded-lg flex items-center justify-center">
+                    <i class="fas fa-tags text-white text-2xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-black mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a href="{% url 'authority_menu_add' %}" class="flex items-center space-x-3 p-6 border-2 border-black rounded-lg hover:bg-black hover:text-white transition group">
+                <i class="fas fa-plus-circle text-black text-2xl group-hover:text-white"></i>
+                <div>
+                    <p class="font-semibold text-lg">Add Menu Item</p>
+                    <p class="text-sm text-gray-600 group-hover:text-gray-200">Add new cafeteria menu item</p>
+                </div>
+            </a>
+            <a href="{% url 'authority_menu_list' %}" class="flex items-center space-x-3 p-6 border-2 border-gray-300 rounded-lg hover:border-black transition group">
+                <i class="fas fa-utensils text-gray-600 text-2xl group-hover:text-black"></i>
+                <div>
+                    <p class="font-semibold text-lg">View All Menus</p>
+                    <p class="text-sm text-gray-600">Manage existing menu items</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Categories Breakdown -->
+    {% if categories %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-black mb-4">Menu by Category</h3>
+        <div class="space-y-3">
+            {% for cat in categories %}
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <span class="font-medium text-black capitalize">{{ cat.category }}</span>
+                <span class="px-3 py-1 bg-black text-white rounded-full text-sm">{{ cat.count }} items</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'user_base.html' %}
+
+{% block title %}Dashboard - UAP SmartCampus{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h2 class="text-2xl font-bold text-black mb-2">Welcome back, {{ user.username }}! 👋</h2>
+        <p class="text-gray-600">Here's what's happening on your campus today.</p>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Today's Menu</p>
+                    <p class="text-2xl font-bold text-black">12</p>
+                </div>
+                <div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                    <i class="fas fa-utensils text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Events Today</p>
+                    <p class="text-2xl font-bold text-black">3</p>
+                </div>
+                <div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                    <i class="fas fa-calendar text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Bus Schedule</p>
+                    <p class="text-2xl font-bold text-black">On Time</p>
+                </div>
+                <div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                    <i class="fas fa-bus text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">AI Assistant</p>
+                    <p class="text-2xl font-bold text-black">Online</p>
+                </div>
+                <div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                    <i class="fas fa-robot text-white text-xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-black mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'cafeteria' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-black transition">
+                <i class="fas fa-utensils text-black text-xl"></i>
+                <span class="font-medium text-gray-700">View Menu</span>
+            </a>
+            <a href="{% url 'transportation' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-black transition">
+                <i class="fas fa-bus text-black text-xl"></i>
+                <span class="font-medium text-gray-700">Bus Schedule</span>
+            </a>
+            <a href="{% url 'events' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-black transition">
+                <i class="fas fa-calendar-alt text-black text-xl"></i>
+                <span class="font-medium text-gray-700">Events</span>
+            </a>
+            <a href="{% url 'ai' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-black transition">
+                <i class="fas fa-robot text-black text-xl"></i>
+                <span class="font-medium text-gray-700">Ask AI</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

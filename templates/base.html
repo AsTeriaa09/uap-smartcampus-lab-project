@@ -4,97 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}UAP SmartCampus{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#000000',
+                        secondary: '#ffffff',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f5f5f5;
-            color: #333;
-        }
-        
-        .navbar {
-            background: #2c3e50;
-            color: white;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .navbar h1 {
-            font-size: 1.5rem;
-        }
-        
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: background 0.3s;
-        }
-        
-        .navbar a:hover {
-            background: #34495e;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-        
-        .messages {
-            margin-bottom: 1rem;
-        }
-        
-        .message {
-            padding: 1rem;
-            border-radius: 4px;
-            margin-bottom: 0.5rem;
-        }
-        
-        .message.error {
-            background: #e74c3c;
-            color: white;
-        }
-        
-        .message.success {
-            background: #27ae60;
-            color: white;
-        }
-        
         /* {% block extra_style %}{% endblock %} */
+        .sidebar-link.active {
+            background-color: #000;
+            color: #fff;
+        }
     </style>
 </head>
-<body>
-    <nav class="navbar">
-        <h1>UAP SmartCampus</h1>
-        <div>
-            {% if user.is_authenticated %}
-                <span style="margin-right: 1rem;">Welcome, {{ user.username }}</span>
-                <a href="{% url 'logout' %}">Logout</a>
-            {% else %}
-                <a href="{% url 'login' %}">Login</a>
-            {% endif %}
-        </div>
-    </nav>
-    
-    <div class="container">
-        {% if messages %}
-        <div class="messages">
-            {% for message in messages %}
-            <div class="message {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        </div>
-        {% endif %}
-        
-        {% block content %}{% endblock %}
-    </div>
+<body class="bg-gray-50">
+    {% block body %}{% endblock %}
 </body>
 </html>

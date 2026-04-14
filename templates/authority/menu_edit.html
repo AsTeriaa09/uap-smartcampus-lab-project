@@ -1,0 +1,96 @@
+{% extends 'authority/base.html' %}
+
+{% block title %}Edit Menu Item - Authority Portal{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto space-y-6">
+    <!-- Header -->
+    <div>
+        <h2 class="text-2xl font-bold text-black mb-1">Edit Menu Item</h2>
+        <p class="text-gray-600">Update the details for "{{ item.name }}"</p>
+    </div>
+
+    <!-- Form -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- Name -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Item Name *</label>
+                    <input type="text" id="name" name="name" value="{{ item.name }}" required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition">
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <textarea id="description" name="description" rows="3"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition">{{ item.description }}</textarea>
+                </div>
+
+                <!-- Price and Category -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="price" class="block text-sm font-medium text-gray-700 mb-2">Price (৳) *</label>
+                        <input type="number" id="price" name="price" value="{{ item.price }}" step="0.01" required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition">
+                    </div>
+
+                    <div>
+                        <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+                        <select id="category" name="category" required 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition">
+                            <option value="breakfast" {% if item.category == 'breakfast' %}selected{% endif %}>Breakfast</option>
+                            <option value="lunch" {% if item.category == 'lunch' %}selected{% endif %}>Lunch</option>
+                            <option value="dinner" {% if item.category == 'dinner' %}selected{% endif %}>Dinner</option>
+                            <option value="snacks" {% if item.category == 'snacks' %}selected{% endif %}>Snacks</option>
+                            <option value="beverages" {% if item.category == 'beverages' %}selected{% endif %}>Beverages</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Current Image -->
+                {% if item.image %}
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Current Image</label>
+                    <img src="{{ item.image.url }}" alt="{{ item.name }}" class="w-32 h-32 object-cover rounded-lg border border-gray-300">
+                </div>
+                {% endif %}
+
+                <!-- Image Upload -->
+                <div>
+                    <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+                        {% if item.image %}Replace Image{% else %}Upload Image{% endif %}
+                    </label>
+                    <input type="file" id="image" name="image" accept="image/*"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-transparent outline-none transition">
+                    <p class="text-xs text-gray-500 mt-1">Optional: {% if item.image %}Upload a new image to replace the current one{% else %}Upload an image of the menu item{% endif %}</p>
+                </div>
+
+                <!-- Availability -->
+                <div class="flex items-center">
+                    <input type="checkbox" id="is_available" name="is_available" {% if item.is_available %}checked{% endif %}
+                        class="w-5 h-5 text-black border-gray-300 rounded focus:ring-black">
+                    <label for="is_available" class="ml-3 text-sm font-medium text-gray-700">
+                        Item is currently available
+                    </label>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="flex items-center space-x-4 pt-4">
+                    <button type="submit" 
+                        class="flex-1 bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition">
+                        <i class="fas fa-save mr-2"></i>Update Menu Item
+                    </button>
+                    <a href="{% url 'authority_menu_list' %}" 
+                        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium">
+                        Cancel
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
