@@ -3,7 +3,7 @@ from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from main.views import (
-    homepage, user_login, user_logout, 
+    homepage, user_login, user_register, user_logout, 
     dashboard, cafeteria, transportation, events, ai,
     authority_login, authority_logout, authority_dashboard,
     authority_menu_list, authority_menu_add, authority_menu_edit, authority_menu_delete
@@ -13,6 +13,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', user_login, name='login'),
     path('login/', user_login, name='login'),
+    path('register/', user_register, name='register'),
     path('logout/', user_logout, name='logout'),
     path('dashboard/', dashboard, name='dashboard'),
     path('cafeteria/', cafeteria, name='cafeteria'),

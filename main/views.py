@@ -30,6 +30,38 @@ def user_login(request):
     return render(request, 'login.html')
 
 
+def user_register(request):
+    """User registration view"""
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+        
+        # Validation
+        if not username or not password:
+            messages.error(request, 'Username and password are required')
+            return render(request, 'register.html')
+        
+        if password != confirm_password:
+            messages.error(request, 'Passwords do not match')
+            return render(request, 'register.html')
+        
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'Username already exists')
+            return render(request, 'register.html')
+        
+        # Create user
+        user = User.objects.create_user(username=username, password=password)
+        login(request, user)
+        messages.success(request, 'Account created successfully!')
+        return redirect('dashboard')
+    
+    return render(request, 'register.html')
+
+
 def user_logout(request):
     logout(request)
     return redirect('login')

@@ -4,10 +4,17 @@
 
 {% block content %}
 <div class="space-y-6">
-    <!-- Welcome Section -->
+    <!-- Welcome Section with User Profile -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 class="text-2xl font-bold text-black mb-2">Welcome back, {{ user.username }}! 👋</h2>
-        <p class="text-gray-600">Here's what's happening on your campus today.</p>
+        <div class="flex items-center space-x-4 mb-4">
+            <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-2xl font-bold">
+                {{ user.username|first|upper }}
+            </div>
+            <div>
+                <h2 class="text-2xl font-bold text-primary">Welcome back, {{ user.username }}! 👋</h2>
+                <p class="text-gray-600">Here's what's happening on your campus today.</p>
+            </div>
+        </div>
     </div>
 
     <!-- Quick Stats -->
@@ -16,9 +23,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Today's Menu</p>
-                    <p class="text-2xl font-bold text-black">12</p>
+                    <p class="text-2xl font-bold text-primary">12</p>
                 </div>
-                <div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
                     <i class="fas fa-utensils text-white text-xl"></i>
                 </div>
             </div>
@@ -28,9 +35,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Events Today</p>
-                    <p class="text-2xl font-bold text-black">3</p>
+                    <p class="text-2xl font-bold text-primary">3</p>
                 </div>
-                <div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
                     <i class="fas fa-calendar text-white text-xl"></i>
                 </div>
             </div>
@@ -40,9 +47,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 mb-1">Bus Schedule</p>
-                    <p class="text-2xl font-bold text-black">On Time</p>
+                    <p class="text-2xl font-bold text-primary">On Time</p>
                 </div>
-                <div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
                     <i class="fas fa-bus text-white text-xl"></i>
                 </div>
             </div>
@@ -52,9 +59,9 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-gray-600 mb-1">AI Assistant</p>
-                    <p class="text-2xl font-bold text-black">Online</p>
+                    <p class="text-2xl font-bold text-primary">Online</p>
                 </div>
-                <div class="w-12 h-12 bg-black rounded-lg flex items-center justify-center">
+                <div class="w-12 h-12 bg-primary rounded-lg flex items-center justify-center">
                     <i class="fas fa-robot text-white text-xl"></i>
                 </div>
             </div>
@@ -63,25 +70,145 @@
 
     <!-- Quick Actions -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 class="text-xl font-bold text-black mb-4">Quick Actions</h3>
+        <h3 class="text-xl font-bold text-primary mb-4">Quick Actions</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <a href="{% url 'cafeteria' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-black transition">
-                <i class="fas fa-utensils text-black text-xl"></i>
+            <a href="{% url 'cafeteria' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary transition">
+                <i class="fas fa-utensils text-primary text-xl"></i>
                 <span class="font-medium text-gray-700">View Menu</span>
             </a>
-            <a href="{% url 'transportation' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-black transition">
-                <i class="fas fa-bus text-black text-xl"></i>
+            <a href="{% url 'transportation' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary transition">
+                <i class="fas fa-bus text-primary text-xl"></i>
                 <span class="font-medium text-gray-700">Bus Schedule</span>
             </a>
-            <a href="{% url 'events' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-black transition">
-                <i class="fas fa-calendar-alt text-black text-xl"></i>
+            <a href="{% url 'events' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary transition">
+                <i class="fas fa-calendar-alt text-primary text-xl"></i>
                 <span class="font-medium text-gray-700">Events</span>
             </a>
-            <a href="{% url 'ai' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-black transition">
-                <i class="fas fa-robot text-black text-xl"></i>
+            <a href="{% url 'ai' %}" class="flex items-center space-x-3 p-4 border border-gray-200 rounded-lg hover:border-primary transition">
+                <i class="fas fa-robot text-primary text-xl"></i>
                 <span class="font-medium text-gray-700">Ask AI</span>
             </a>
         </div>
     </div>
+
+    <!-- Todo Section -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <h3 class="text-xl font-bold text-primary mb-4">My Todos</h3>
+        
+        <!-- Tabs -->
+        <div class="flex space-x-4 mb-6 border-b border-gray-200">
+            <button onclick="switchTab('all')" id="tab-all" class="tab-btn px-4 py-2 font-medium text-primary border-b-2 border-primary transition">
+                All
+            </button>
+            <button onclick="switchTab('assignments')" id="tab-assignments" class="tab-btn px-4 py-2 font-medium text-gray-600 hover:text-primary transition">
+                Assignments
+            </button>
+            <button onclick="switchTab('exams')" id="tab-exams" class="tab-btn px-4 py-2 font-medium text-gray-600 hover:text-primary transition">
+                Exams
+            </button>
+        </div>
+
+        <!-- Todo Content -->
+        <div id="todo-content">
+            <!-- All Todos -->
+            <div id="todos-all" class="todo-tab-content space-y-3">
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Data Structures Assignment</h4>
+                        <p class="text-sm text-gray-600">Complete binary tree implementation</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">Assignment</span>
+                    </div>
+                    <span class="text-sm text-gray-500">Due: Apr 28</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-secondary">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Calculus Midterm</h4>
+                        <p class="text-sm text-gray-600">Chapters 5-8 coverage</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">Exam</span>
+                    </div>
+                    <span class="text-sm text-gray-500">Due: May 2</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Web Development Project</h4>
+                        <p class="text-sm text-gray-600">Build a full-stack application</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">Assignment</span>
+                    </div>
+                    <span class="text-sm text-gray-500">Due: May 5</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-secondary">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Database Systems Final</h4>
+                        <p class="text-sm text-gray-600">SQL queries and normalization</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">Exam</span>
+                    </div>
+                    <span class="text-sm text-gray-500">Due: May 10</span>
+                </div>
+            </div>
+
+            <!-- Assignments Only -->
+            <div id="todos-assignments" class="todo-tab-content space-y-3 hidden">
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Data Structures Assignment</h4>
+                        <p class="text-sm text-gray-600">Complete binary tree implementation</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">Assignment</span>
+                    </div>
+                    <span class="text-sm text-gray-500">Due: Apr 28</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Web Development Project</h4>
+                        <p class="text-sm text-gray-600">Build a full-stack application</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">Assignment</span>
+                    </div>
+                    <span class="text-sm text-gray-500">Due: May 5</span>
+                </div>
+            </div>
+
+            <!-- Exams Only -->
+            <div id="todos-exams" class="todo-tab-content space-y-3 hidden">
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-secondary">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Calculus Midterm</h4>
+                        <p class="text-sm text-gray-600">Chapters 5-8 coverage</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">Exam</span>
+                    </div>
+                    <span class="text-sm text-gray-500">Due: May 2</span>
+                </div>
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-secondary">
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Database Systems Final</h4>
+                        <p class="text-sm text-gray-600">SQL queries and normalization</p>
+                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">Exam</span>
+                    </div>
+                    <span class="text-sm text-gray-500">Due: May 10</span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+function switchTab(tabName) {
+    // Hide all tab content
+    document.querySelectorAll('.todo-tab-content').forEach(el => {
+        el.classList.add('hidden');
+    });
+    
+    // Remove active state from all tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('text-primary', 'border-b-2', 'border-primary');
+        btn.classList.add('text-gray-600');
+    });
+    
+    // Show selected tab content
+    document.getElementById('todos-' + tabName).classList.remove('hidden');
+    
+    // Add active state to selected tab
+    const activeBtn = document.getElementById('tab-' + tabName);
+    activeBtn.classList.remove('text-gray-600');
+    activeBtn.classList.add('text-primary', 'border-b-2', 'border-primary');
+}
+</script>
 {% endblock %}

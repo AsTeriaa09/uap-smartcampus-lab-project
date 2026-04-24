@@ -7,11 +7,11 @@
         <!-- Logo -->
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-black rounded-lg flex items-center justify-center">
+                <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                     <i class="fas fa-graduation-cap text-white text-xl"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-black">SmartCampus</h1>
+                    <h1 class="text-xl font-bold text-primary">SmartCampus</h1>
                     <p class="text-xs text-gray-500">UAP Portal</p>
                 </div>
             </div>
@@ -47,17 +47,17 @@
         <!-- Header -->
         <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-black transition">
+                <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-primary transition">
                     <i class="fas fa-home text-xl"></i>
                 </a>
                 <span class="text-gray-300">/</span>
-                <h2 class="text-xl font-semibold text-black">{{ page_title }}</h2>
+                <h2 class="text-xl font-semibold text-primary">{{ page_title }}</h2>
             </div>
 
             <!-- User Avatar Dropdown -->
             <div class="relative">
                 <button onclick="toggleDropdown()" class="flex items-center space-x-3 focus:outline-none">
-                    <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-semibold">
+                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
                         {{ user.username|first|upper }}
                     </div>
                     <span class="text-gray-700 font-medium">{{ user.username }}</span>
