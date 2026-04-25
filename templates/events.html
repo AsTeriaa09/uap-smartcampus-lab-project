@@ -1,18 +1,272 @@
 {% extends 'user_base.html' %}
+{% load static %}
 
 {% block title %}Events & Clubs - UAP SmartCampus{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
+    <!-- Header -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h2 class="text-2xl font-bold text-black mb-2">Events & Clubs 🎉</h2>
         <p class="text-gray-600">Discover campus events, clubs, and activities.</p>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
-        <i class="fas fa-calendar-alt text-gray-300 text-6xl mb-4"></i>
-        <h3 class="text-xl font-bold text-black mb-2">Coming Soon</h3>
-        <p class="text-gray-600">Events and clubs information will be available soon!</p>
+    <!-- Tabs -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="border-b border-gray-200">
+            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+                <button onclick="switchTab('clubs')" id="tab-clubs" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-primary text-primary">
+                    <i class="fas fa-users mr-2"></i>Clubs
+                </button>
+                <button onclick="switchTab('events')" id="tab-events" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-transparent text-gray-500 hover:text-primary hover:border-gray-300">
+                    <i class="fas fa-calendar mr-2"></i>Events
+                </button>
+            </nav>
+        </div>
+
+        <!-- Clubs Tab Content -->
+        <div id="content-clubs" class="tab-content p-6">
+            {% if clubs %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for club in clubs %}
+                <div class="border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition cursor-pointer" onclick="openClubModal({{ club.id }})">
+                    {% if club.logo %}
+                    <div class="h-40 bg-gray-100">
+                        <img src="{{ club.logo.url }}" alt="{{ club.name }}" class="w-full h-full object-cover">
+                    </div>
+                    {% else %}
+                    <div class="h-40 bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                        <i class="fas fa-users text-white text-5xl"></i>
+                    </div>
+                    {% endif %}
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-primary mb-2">{{ club.name }}</h3>
+                        <p class="text-sm text-gray-600 mb-3">{{ club.description|truncatewords:20 }}</p>
+                        <div class="flex items-center justify-between">
+                            <span class="inline-block px-3 py-1 bg-accent/10 text-primary text-xs rounded-full">
+                                {{ club.get_category_display }}
+                            </span>
+                            <button class="text-primary hover:underline text-sm font-medium">
+                                View Details <i class="fas fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-users text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-bold text-black mb-2">No Clubs Available</h3>
+                <p class="text-gray-600">Check back later for upcoming clubs!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Events Tab Content -->
+        <div id="content-events" class="tab-content p-6 hidden">
+            {% if events %}
+            <div class="space-y-4">
+                {% for event in events %}
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
+                    <div class="flex flex-col md:flex-row gap-4">
+                        {% if event.image %}
+                        <div class="md:w-48 h-48 md:h-auto flex-shrink-0">
+                            <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-full h-full object-cover rounded-lg">
+                        </div>
+                        {% endif %}
+                        <div class="flex-1">
+                            <div class="flex items-start justify-between mb-3">
+                                <div>
+                                    <h3 class="text-xl font-bold text-primary mb-1">{{ event.title }}</h3>
+                                    {% if event.club %}
+                                    <p class="text-sm text-accent mb-2">
+                                        <i class="fas fa-users mr-1"></i>{{ event.club.name }}
+                                    </p>
+                                    {% endif %}
+                                </div>
+                                <div class="text-right">
+                                    <div class="bg-primary text-white px-4 py-2 rounded-lg">
+                                        <div class="text-sm font-bold">{{ event.event_date|date:"M d" }}</div>
+                                        <div class="text-xs">{{ event.event_time|time:"g:i A" }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-gray-600 mb-3">{{ event.description|truncatewords:25 }}</p>
+                            <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                                <span><i class="fas fa-map-marker-alt text-primary mr-2"></i>{{ event.location }}</span>
+                                <span><i class="fas fa-clock text-primary mr-2"></i>{{ event.event_date|date:"l, F d, Y" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <i class="fas fa-calendar text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-bold text-black mb-2">No Events Available</h3>
+                <p class="text-gray-600">Check back later for upcoming events!</p>
+            </div>
+            {% endif %}
+        </div>
     </div>
 </div>
+
+<!-- Club Modal -->
+<div id="clubModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <!-- Modal Header -->
+        <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h3 id="modalClubName" class="text-2xl font-bold text-primary"></h3>
+            <button onclick="closeClubModal()" class="text-gray-500 hover:text-primary transition">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6">
+            <!-- Club Info -->
+            <div class="mb-6">
+                <div id="modalClubLogo" class="w-full h-48 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center mb-4 hidden">
+                    <i class="fas fa-users text-white text-6xl"></i>
+                </div>
+                <img id="modalClubImage" src="" alt="" class="w-full h-48 object-cover rounded-lg mb-4 hidden">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <span class="text-sm text-gray-600">Category</span>
+                        <p id="modalClubCategory" class="font-semibold text-primary"></p>
+                    </div>
+                    <div>
+                        <span class="text-sm text-gray-600">President</span>
+                        <p id="modalClubPresident" class="font-semibold text-primary"></p>
+                    </div>
+                    <div class="md:col-span-2">
+                        <span class="text-sm text-gray-600">Contact Email</span>
+                        <p id="modalClubEmail" class="font-semibold text-primary"></p>
+                    </div>
+                </div>
+                
+                <div>
+                    <span class="text-sm text-gray-600">About</span>
+                    <p id="modalClubDescription" class="text-gray-700 mt-1"></p>
+                </div>
+            </div>
+
+            <!-- Club Events -->
+            <div class="border-t border-gray-200 pt-6">
+                <h4 class="text-xl font-bold text-primary mb-4">
+                    <i class="fas fa-calendar mr-2"></i>Upcoming Events
+                </h4>
+                <div id="modalClubEvents" class="space-y-3">
+                    <!-- Events will be loaded here dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Club and Events data from Django
+const clubsData = {{ clubs_json|safe }};
+const eventsData = {{ events_json|safe }};
+
+// Tab switching
+function switchTab(tabName) {
+    // Hide all tab content
+    document.querySelectorAll('.tab-content').forEach(el => {
+        el.classList.add('hidden');
+    });
+    
+    // Reset all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-primary', 'text-primary');
+        btn.classList.add('border-transparent', 'text-gray-500');
+    });
+    
+    // Show selected tab
+    document.getElementById('content-' + tabName).classList.remove('hidden');
+    document.getElementById('tab-' + tabName).classList.remove('border-transparent', 'text-gray-500');
+    document.getElementById('tab-' + tabName).classList.add('border-primary', 'text-primary');
+}
+
+// Modal functions
+function openClubModal(clubId) {
+    const club = clubsData.find(c => c.id === clubId);
+    if (!club) return;
+    
+    // Populate club info
+    document.getElementById('modalClubName').textContent = club.name;
+    document.getElementById('modalClubCategory').textContent = club.category_display || club.category;
+    document.getElementById('modalClubPresident').textContent = club.president || 'Not specified';
+    document.getElementById('modalClubEmail').textContent = club.contact_email || 'Not specified';
+    document.getElementById('modalClubDescription').textContent = club.description;
+    
+    // Handle logo/image
+    const logoEl = document.getElementById('modalClubImage');
+    const placeholderEl = document.getElementById('modalClubLogo');
+    
+    if (club.logo) {
+        logoEl.src = club.logo;
+        logoEl.classList.remove('hidden');
+        placeholderEl.classList.add('hidden');
+    } else {
+        logoEl.classList.add('hidden');
+        placeholderEl.classList.remove('hidden');
+    }
+    
+    // Load club events
+    const clubEvents = eventsData.filter(e => e.club_id === clubId);
+    const eventsContainer = document.getElementById('modalClubEvents');
+    
+    if (clubEvents.length > 0) {
+        eventsContainer.innerHTML = clubEvents.map(event => `
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition">
+                <div class="flex items-start justify-between mb-2">
+                    <h5 class="font-bold text-primary">${event.title}</h5>
+                    <div class="bg-primary text-white px-3 py-1 rounded text-xs">
+                        ${new Date(event.event_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </div>
+                </div>
+                <p class="text-sm text-gray-600 mb-2">${event.description.substring(0, 100)}...</p>
+                <div class="flex gap-4 text-xs text-gray-500">
+                    <span><i class="fas fa-map-marker-alt mr-1"></i>${event.location}</span>
+                    <span><i class="fas fa-clock mr-1"></i>${new Date(event.event_date).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })}</span>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        eventsContainer.innerHTML = `
+            <div class="text-center py-6 text-gray-500">
+                <i class="fas fa-calendar-times text-3xl mb-2"></i>
+                <p>No upcoming events for this club</p>
+            </div>
+        `;
+    }
+    
+    // Show modal
+    document.getElementById('clubModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeClubModal() {
+    document.getElementById('clubModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Close modal when clicking outside
+document.getElementById('clubModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeClubModal();
+    }
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        closeClubModal();
+    }
+});
+</script>
 {% endblock %}

@@ -1,0 +1,56 @@
+{% extends 'admin_portal/layout.html' %}
+
+{% block title %}Clubs - UAP Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h3 class="text-xl font-semibold text-gray-800">Manage Clubs</h3>
+            <p class="text-sm text-gray-600 mt-1">Add, edit, or remove student clubs</p>
+        </div>
+        <a href="{% url 'admin_club_add' %}" class="px-6 py-3 gradient-bg text-white rounded-lg font-medium hover:shadow-lg smooth-transition">
+            <i class="fas fa-plus mr-2"></i>Add Club
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for club in clubs %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+            <div class="flex items-start justify-between mb-4">
+                <div class="w-16 h-16 gradient-bg rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-white text-2xl"></i>
+                </div>
+                <span class="px-3 py-1 {% if club.is_active %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %} rounded-full text-xs font-medium capitalize">
+                    {{ club.category }}
+                </span>
+            </div>
+            
+            <h4 class="text-xl font-bold text-gray-800 mb-2">{{ club.name }}</h4>
+            <p class="text-sm text-gray-600 mb-4 line-clamp-2">{{ club.description }}</p>
+            
+            {% if club.president %}
+            <p class="text-sm text-gray-500 mb-1"><i class="fas fa-user mr-2"></i>{{ club.president }}</p>
+            {% endif %}
+            {% if club.contact_email %}
+            <p class="text-sm text-gray-500 mb-4"><i class="fas fa-envelope mr-2"></i>{{ club.contact_email }}</p>
+            {% endif %}
+            
+            <div class="flex space-x-2 pt-4 border-t border-gray-200">
+                <a href="{% url 'admin_club_edit' club.id %}" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary smooth-transition text-sm text-center">
+                    <i class="fas fa-edit mr-1"></i>Edit
+                </a>
+                <a href="{% url 'admin_club_delete' club.id %}" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 smooth-transition text-sm text-center" onclick="return confirm('Delete this club?')">
+                    <i class="fas fa-trash mr-1"></i>Delete
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full text-center py-12">
+            <i class="fas fa-users text-6xl text-gray-300 mb-4"></i>
+            <p class="text-lg text-gray-500">No clubs yet</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

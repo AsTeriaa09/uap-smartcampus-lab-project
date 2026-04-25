@@ -1,0 +1,85 @@
+{% extends 'admin_portal/base.html' %}
+
+{% block title %}Admin Login - UAP SmartCampus{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center gradient-bg px-4">
+    <div class="max-w-md w-full">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-2xl mb-4 shadow-lg">
+                <i class="fas fa-shield-alt text-primary text-4xl"></i>
+            </div>
+            <h1 class="text-4xl font-bold text-white mb-2">UAP Admin Portal</h1>
+            <p class="text-white/80 text-lg">Management Access Only</p>
+        </div>
+
+        <!-- Login Form -->
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <form method="POST">
+                {% csrf_token %}
+                
+                {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for message in messages %}
+                    <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-500 text-white{% elif message.tags == 'success' %}bg-green-500 text-white{% else %}bg-accent text-white{% endif %}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="space-y-6">
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">Admin Username</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-user text-gray-400"></i>
+                            </div>
+                            <input type="text" id="username" name="username" required autofocus 
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Admin Password</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-lock text-gray-400"></i>
+                            </div>
+                            <input type="password" id="password" name="password" required 
+                                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                        </div>
+                    </div>
+                    
+                    <button type="submit" 
+                        class="w-full gradient-bg text-white py-3 rounded-lg font-medium hover:shadow-lg smooth-transition">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Sign In to Admin Panel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <p class="text-center text-sm text-white/70 mt-8">
+            &copy; 2026 UAP SmartCampus. Authorized Personnel Only.
+        </p>
+    </div>
+</div>
+
+<script>
+// Auto-dismiss messages after 3 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const messages = document.querySelectorAll('.p-4.rounded-lg');
+    messages.forEach(function(message) {
+        setTimeout(function() {
+            message.style.transition = 'opacity 0.5s ease';
+            message.style.opacity = '0';
+            setTimeout(function() {
+                message.remove();
+            }, 500);
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}

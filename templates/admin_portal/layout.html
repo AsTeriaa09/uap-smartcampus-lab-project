@@ -1,0 +1,102 @@
+{% extends 'admin_portal/base.html' %}
+
+{% block body %}
+<div class="flex h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col shadow-lg">
+        <!-- Logo -->
+        <div class="p-6 gradient-bg">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
+                    <i class="fas fa-shield-alt text-primary text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-white">UAP Admin</h1>
+                    <p class="text-xs text-white/80">Management Portal</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <nav class="flex-1 p-4 space-y-2 overflow-y-auto">
+            <a href="{% url 'admin_dashboard' %}" class="admin-sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 smooth-transition {% if active_page == 'dashboard' %}active{% endif %}">
+                <i class="fas fa-home w-5"></i>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            <a href="{% url 'admin_menu_list' %}" class="admin-sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 smooth-transition {% if active_page == 'menu' %}active{% endif %}">
+                <i class="fas fa-utensils w-5"></i>
+                <span class="font-medium">Cafeteria Menu</span>
+            </a>
+            <a href="{% url 'admin_bus_routes' %}" class="admin-sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 smooth-transition {% if active_page == 'bus' %}active{% endif %}">
+                <i class="fas fa-bus w-5"></i>
+                <span class="font-medium">Bus Routes</span>
+            </a>
+            <a href="{% url 'admin_clubs' %}" class="admin-sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 smooth-transition {% if active_page == 'clubs' %}active{% endif %}">
+                <i class="fas fa-users w-5"></i>
+                <span class="font-medium">Clubs</span>
+            </a>
+            <a href="{% url 'admin_events' %}" class="admin-sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 smooth-transition {% if active_page == 'events' %}active{% endif %}">
+                <i class="fas fa-calendar-alt w-5"></i>
+                <span class="font-medium">Events</span>
+            </a>
+        </nav>
+
+        <!-- Logout -->
+        <div class="p-4 border-t border-gray-200">
+            <a href="{% url 'admin_logout' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 smooth-transition">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span class="font-medium">Logout</span>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
+            <div class="flex items-center space-x-4">
+                <h2 class="text-2xl font-semibold text-primary">{{ page_title }}</h2>
+            </div>
+
+            <!-- User Info -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 gradient-bg rounded-full flex items-center justify-center text-white font-semibold">
+                    {{ user.username|first|upper }}
+                </div>
+                <span class="text-gray-700 font-medium">{{ user.username }}</span>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+            {% if messages %}
+            <div class="mb-4 space-y-2">
+                {% for message in messages %}
+                <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-500 text-white{% elif message.tags == 'success' %}bg-green-500 text-white{% else %}bg-accent text-white{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+</div>
+
+<script>
+// Auto-dismiss messages after 3 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const messages = document.querySelectorAll('.p-4.rounded-lg');
+    messages.forEach(function(message) {
+        setTimeout(function() {
+            message.style.transition = 'opacity 0.5s ease';
+            message.style.opacity = '0';
+            setTimeout(function() {
+                message.remove();
+            }, 500);
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}

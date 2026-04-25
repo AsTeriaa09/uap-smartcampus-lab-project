@@ -117,6 +117,11 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+# Additional static files directories
+STATICFILES_DIRS = [
+    BASE_DIR / 'smartcampus' / 'static',
+]
+
 # Media files (User uploaded files)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

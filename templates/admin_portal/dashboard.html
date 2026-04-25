@@ -1,0 +1,176 @@
+{% extends 'admin_portal/layout.html' %}
+
+{% block title %}Dashboard - UAP Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Welcome Section -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+        <h2 class="text-2xl font-bold text-primary mb-2">Welcome to UAP Admin Portal! 🎯</h2>
+        <p class="text-gray-600">Manage your campus resources efficiently from one central location.</p>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Menu Items Stats -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Menu Items</p>
+                    <p class="text-3xl font-bold text-primary">{{ available_menu_items }}/{{ total_menu_items }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Available / Total</p>
+                </div>
+                <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center">
+                    <i class="fas fa-utensils text-white text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bus Routes Stats -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Bus Routes</p>
+                    <p class="text-3xl font-bold text-primary">{{ active_bus_routes }}/{{ total_bus_routes }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Active / Total</p>
+                </div>
+                <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center">
+                    <i class="fas fa-bus text-white text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Clubs Stats -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Clubs</p>
+                    <p class="text-3xl font-bold text-primary">{{ active_clubs }}/{{ total_clubs }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Active / Total</p>
+                </div>
+                <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center">
+                    <i class="fas fa-users text-white text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Stats -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Events</p>
+                    <p class="text-3xl font-bold text-primary">{{ upcoming_events }}/{{ total_events }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Upcoming / Total</p>
+                </div>
+                <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center">
+                    <i class="fas fa-calendar-alt text-white text-2xl"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+        <h3 class="text-xl font-bold text-primary mb-4">Quick Actions</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <a href="{% url 'admin_menu_add' %}" class="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-xl hover:border-primary smooth-transition group">
+                <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center group-hover:bg-primary smooth-transition">
+                    <i class="fas fa-plus text-primary group-hover:text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-semibold text-gray-800">Add Menu Item</span>
+                    <p class="text-xs text-gray-500">Cafeteria</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'admin_bus_add' %}" class="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-xl hover:border-primary smooth-transition group">
+                <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center group-hover:bg-primary smooth-transition">
+                    <i class="fas fa-plus text-primary group-hover:text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-semibold text-gray-800">Add Bus Route</span>
+                    <p class="text-xs text-gray-500">Transportation</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'admin_club_add' %}" class="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-xl hover:border-primary smooth-transition group">
+                <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center group-hover:bg-primary smooth-transition">
+                    <i class="fas fa-plus text-primary group-hover:text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-semibold text-gray-800">Add Club</span>
+                    <p class="text-xs text-gray-500">Student Life</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'admin_event_add' %}" class="flex items-center space-x-3 p-4 border-2 border-gray-200 rounded-xl hover:border-primary smooth-transition group">
+                <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center group-hover:bg-primary smooth-transition">
+                    <i class="fas fa-plus text-primary group-hover:text-white text-xl"></i>
+                </div>
+                <div>
+                    <span class="font-semibold text-gray-800">Add Event</span>
+                    <p class="text-xs text-gray-500">Calendar</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Management Links -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+        <h3 class="text-xl font-bold text-primary mb-4">Manage Content</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <a href="{% url 'admin_menu_list' %}" class="flex items-center justify-between p-5 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-accent/5 smooth-transition">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center">
+                        <i class="fas fa-utensils text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-800 text-lg">Cafeteria Menu</span>
+                        <p class="text-sm text-gray-500">Manage food items & pricing</p>
+                    </div>
+                </div>
+                <i class="fas fa-arrow-right text-primary text-xl"></i>
+            </a>
+            
+            <a href="{% url 'admin_bus_routes' %}" class="flex items-center justify-between p-5 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-accent/5 smooth-transition">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center">
+                        <i class="fas fa-bus text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-800 text-lg">Bus Routes</span>
+                        <p class="text-sm text-gray-500">Manage schedules & routes</p>
+                    </div>
+                </div>
+                <i class="fas fa-arrow-right text-primary text-xl"></i>
+            </a>
+            
+            <a href="{% url 'admin_clubs' %}" class="flex items-center justify-between p-5 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-accent/5 smooth-transition">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center">
+                        <i class="fas fa-users text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-800 text-lg">Clubs</span>
+                        <p class="text-sm text-gray-500">Manage student organizations</p>
+                    </div>
+                </div>
+                <i class="fas fa-arrow-right text-primary text-xl"></i>
+            </a>
+            
+            <a href="{% url 'admin_events' %}" class="flex items-center justify-between p-5 border-2 border-gray-200 rounded-xl hover:border-primary hover:bg-accent/5 smooth-transition">
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 gradient-bg rounded-lg flex items-center justify-center">
+                        <i class="fas fa-calendar-alt text-white text-xl"></i>
+                    </div>
+                    <div>
+                        <span class="font-semibold text-gray-800 text-lg">Events</span>
+                        <p class="text-sm text-gray-500">Manage campus events</p>
+                    </div>
+                </div>
+                <i class="fas fa-arrow-right text-primary text-xl"></i>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
