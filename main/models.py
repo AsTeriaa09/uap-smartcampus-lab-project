@@ -99,6 +99,10 @@ class Event(models.Model):
 class EventRegistration(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_registrations')
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='registrations')
+    full_name = models.CharField(max_length=200, blank=True, default='')
+    registration_number = models.CharField(max_length=50, blank=True, default='')
+    edu_email = models.EmailField(blank=True, default='')
+    department = models.CharField(max_length=100, blank=True, default='')
     registered_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -106,7 +110,7 @@ class EventRegistration(models.Model):
         ordering = ['-registered_at']
 
     def __str__(self):
-        return f"{self.user.username} registered for {self.event.title}"
+        return f"{self.full_name} ({self.registration_number}) registered for {self.event.title}"
 
 
 class Order(models.Model):

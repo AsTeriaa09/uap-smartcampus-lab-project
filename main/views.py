@@ -206,7 +206,30 @@ def register_for_event(request, event_id):
             'registration_count': event.registration_count
         })
     
-    EventRegistration.objects.create(user=request.user, event=event)
+    # Get registration details from request
+    full_name = request.POST.get('full_name', '').strip()
+    registration_number = request.POST.get('registration_number', '').strip()
+    edu_email = request.POST.get('edu_email', '').strip()
+    department = request.POST.get('department', '').strip()
+    
+    # Validate required fields
+    if not full_name:
+        return JsonResponse({'success': False, 'message': 'Full name is required'})
+    if not registration_number:
+        return JsonResponse({'success': False, 'message': 'Registration number is required'})
+    if not edu_email:
+        return JsonResponse({'success': False, 'message': 'Educational email is required'})
+    if not department:
+        return JsonResponse({'success': False, 'message': 'Department is required'})
+    
+    EventRegistration.objects.create(
+        user=request.user,
+        event=event,
+        full_name=full_name,
+        registration_number=registration_number,
+        edu_email=edu_email,
+        department=department
+    )
     
     return JsonResponse({
         'success': True,
@@ -727,6 +750,23 @@ def admin_events(request):
         'active_page': 'events',
         'page_title': 'Events',
         'events': events
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='/uapadmin/login/')
+def admin_event_registrations(request, event_id):
+    """View all registrations for a specific event"""
+    event = get_object_or_404(Event.objects.select_related('club'), id=event_id)
+    registrations = EventRegistration.objects.filter(
+        event=event
+    ).select_related('user').order_by('-registered_at')
+    
+    return render(request, 'admin_portal/event_registrations.html', {
+        'active_page': 'events',
+        'page_title': f'Registrations - {event.title}',
+        'event': event,
+        'registrations': registrations,
     })
 
 

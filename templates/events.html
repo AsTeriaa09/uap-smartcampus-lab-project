@@ -109,7 +109,7 @@
                                     <i class="fas fa-times mr-1"></i>Unregister
                                 </button>
                                 {% else %}
-                                <button onclick="event.stopPropagation(); registerForEvent({{ event.id }})" id="btn-event-{{ event.id }}" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm font-medium">
+                                <button onclick="event.stopPropagation(); openRegisterModal({{ event.id }})" id="btn-event-{{ event.id }}" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm font-medium">
                                     <i class="fas fa-check mr-1"></i>Register
                                 </button>
                                 {% endif %}
@@ -126,6 +126,58 @@
                 <p class="text-gray-600">Check back later for upcoming events!</p>
             </div>
             {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Registration Modal -->
+<div id="registerModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div class="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h3 class="text-xl font-bold text-primary">Register for Event</h3>
+            <button onclick="closeRegisterModal()" class="text-gray-500 hover:text-primary transition">
+                <i class="fas fa-times text-2xl"></i>
+            </button>
+        </div>
+        <div class="p-6">
+            <p id="registerEventTitle" class="text-lg font-semibold text-gray-800 mb-4"></p>
+            <form id="registerForm" onsubmit="submitRegistration(event)">
+                <input type="hidden" id="registerEventId" name="event_id">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                        <input type="text" id="regFullName" name="full_name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Registration Number</label>
+                        <input type="text" id="regRegNumber" name="registration_number" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Educational Email</label>
+                        <input type="email" id="regEduEmail" name="edu_email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Department</label>
+                        <select id="regDepartment" name="department" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary outline-none">
+                            <option value="">Select Department</option>
+                            <option value="CSE">CSE</option>
+                            <option value="EEE">EEE</option>
+                            <option value="CE">CE</option>
+                            <option value="ME">ME</option>
+                            <option value="BBA">BBA</option>
+                            <option value="English">English</option>
+                            <option value="Law">Law</option>
+                            <option value="Pharmacy">Pharmacy</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mt-6">
+                    <button type="submit" class="w-full px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition font-medium">
+                        <i class="fas fa-check mr-2"></i>Confirm Registration
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -339,18 +391,62 @@ function showToast(message, type) {
     }, 3000);
 }
 
-function registerForEvent(eventId) {
-    fetch(`/events/register/${eventId}/`, {
+let currentRegisterEventId = null;
+
+function openRegisterModal(eventId) {
+    const event = eventsData.find(e => e.id === eventId);
+    if (!event) return;
+    
+    currentRegisterEventId = eventId;
+    document.getElementById('registerEventId').value = eventId;
+    document.getElementById('registerEventTitle').textContent = event.title;
+    
+    // Pre-fill with user's previous data if available
+    const savedName = localStorage.getItem('reg_full_name') || '';
+    const savedRegNum = localStorage.getItem('reg_registration_number') || '';
+    const savedEmail = localStorage.getItem('reg_edu_email') || '';
+    const savedDept = localStorage.getItem('reg_department') || '';
+    
+    document.getElementById('regFullName').value = savedName;
+    document.getElementById('regRegNumber').value = savedRegNum;
+    document.getElementById('regEduEmail').value = savedEmail;
+    document.getElementById('regDepartment').value = savedDept;
+    
+    document.getElementById('registerModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeRegisterModal() {
+    document.getElementById('registerModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    currentRegisterEventId = null;
+}
+
+function submitRegistration(e) {
+    e.preventDefault();
+    if (!currentRegisterEventId) return;
+    
+    const formData = new FormData(e.target);
+    
+    // Save to localStorage for convenience
+    localStorage.setItem('reg_full_name', formData.get('full_name'));
+    localStorage.setItem('reg_registration_number', formData.get('registration_number'));
+    localStorage.setItem('reg_edu_email', formData.get('edu_email'));
+    localStorage.setItem('reg_department', formData.get('department'));
+    
+    fetch(`/events/register/${currentRegisterEventId}/`, {
         method: 'POST',
         headers: {
             'X-CSRFToken': getCsrfToken(),
             'X-Requested-With': 'XMLHttpRequest',
         },
+        body: formData,
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            updateEventButton(eventId, true, data.registration_count);
+            closeRegisterModal();
+            updateEventButton(currentRegisterEventId, true, data.registration_count);
             showToast(data.message, 'success');
         } else {
             showToast(data.message, 'error');
@@ -359,6 +455,17 @@ function registerForEvent(eventId) {
     .catch(error => {
         showToast('An error occurred. Please try again.', 'error');
     });
+}
+
+// Close register modal when clicking outside
+document.getElementById('registerModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeRegisterModal();
+    }
+});
+
+function registerForEvent(eventId) {
+    openRegisterModal(eventId);
 }
 
 function unregisterFromEvent(eventId) {

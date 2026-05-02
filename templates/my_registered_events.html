@@ -46,6 +46,24 @@
                             </div>
                         </div>
                         <p class="text-gray-600 mb-3">{{ reg.event.description|truncatewords:25 }}</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                            <div class="text-sm">
+                                <span class="text-gray-500">Name:</span>
+                                <span class="font-medium text-gray-800">{{ reg.full_name }}</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="text-gray-500">Reg. No:</span>
+                                <span class="font-medium text-gray-800">{{ reg.registration_number }}</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="text-gray-500">Email:</span>
+                                <span class="font-medium text-gray-800">{{ reg.edu_email }}</span>
+                            </div>
+                            <div class="text-sm">
+                                <span class="text-gray-500">Dept:</span>
+                                <span class="font-medium text-gray-800">{{ reg.department }}</span>
+                            </div>
+                        </div>
                         <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
                             <span><i class="fas fa-map-marker-alt text-primary mr-2"></i>{{ reg.event.location }}</span>
                             <span><i class="fas fa-clock text-primary mr-2"></i>{{ reg.event.event_date|date:"l, F d, Y" }}</span>
