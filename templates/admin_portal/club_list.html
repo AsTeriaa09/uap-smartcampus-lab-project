@@ -37,12 +37,12 @@
             {% endif %}
             
             <div class="flex space-x-2 pt-4 border-t border-gray-200">
-                <a href="{% url 'admin_club_edit' club.id %}" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary smooth-transition text-sm text-center">
+                <button data-edit-url="{% url 'admin_club_edit' club.id %}" class="edit-btn flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary smooth-transition text-sm text-center cursor-pointer">
                     <i class="fas fa-edit mr-1"></i>Edit
-                </a>
-                <a href="{% url 'admin_club_delete' club.id %}" class="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 smooth-transition text-sm text-center" onclick="return confirm('Delete this club?')">
+                </button>
+                <button data-delete-url="{% url 'admin_club_delete' club.id %}" data-delete-msg="Delete this club?" class="delete-btn flex-1 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 smooth-transition text-sm text-center cursor-pointer">
                     <i class="fas fa-trash mr-1"></i>Delete
-                </a>
+                </button>
             </div>
         </div>
         {% empty %}

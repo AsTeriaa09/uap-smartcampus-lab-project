@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
+from django.http import JsonResponse
 from .models import MenuItem, BusRoute, Club, Event
 from django.contrib.auth.models import User
 from django.db.models import Count
@@ -416,7 +417,10 @@ def admin_menu_edit(request, item_id):
             item.image = request.FILES.get('image')
         
         item.save()
-        messages.success(request, f'Menu item "{item.name}" updated successfully!')
+        msg = f'Menu item "{item.name}" updated successfully!'
+        messages.success(request, msg)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': msg})
         return redirect('admin_menu_list')
     
     return render(request, 'admin_portal/menu_edit.html', {
@@ -433,7 +437,10 @@ def admin_menu_delete(request, item_id):
     item = get_object_or_404(MenuItem, id=item_id)
     item_name = item.name
     item.delete()
-    messages.success(request, f'Menu item "{item_name}" deleted successfully!')
+    msg = f'Menu item "{item_name}" deleted successfully!'
+    messages.success(request, msg)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'message': msg})
     return redirect('admin_menu_list')
 
 
@@ -500,7 +507,10 @@ def admin_bus_edit(request, route_id):
         route.is_active = request.POST.get('is_active') == 'on'
         
         route.save()
-        messages.success(request, f'Bus route "{route.route_name}" updated successfully!')
+        msg = f'Bus route "{route.route_name}" updated successfully!'
+        messages.success(request, msg)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': msg})
         return redirect('admin_bus_routes')
     
     return render(request, 'admin_portal/bus_edit.html', {
@@ -517,7 +527,10 @@ def admin_bus_delete(request, route_id):
     route = get_object_or_404(BusRoute, id=route_id)
     route_name = route.route_name
     route.delete()
-    messages.success(request, f'Bus route "{route_name}" deleted successfully!')
+    msg = f'Bus route "{route_name}" deleted successfully!'
+    messages.success(request, msg)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'message': msg})
     return redirect('admin_bus_routes')
 
 
@@ -583,7 +596,10 @@ def admin_club_edit(request, club_id):
             club.logo = request.FILES.get('logo')
         
         club.save()
-        messages.success(request, f'Club "{club.name}" updated successfully!')
+        msg = f'Club "{club.name}" updated successfully!'
+        messages.success(request, msg)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': msg})
         return redirect('admin_clubs')
     
     return render(request, 'admin_portal/club_edit.html', {
@@ -600,7 +616,10 @@ def admin_club_delete(request, club_id):
     club = get_object_or_404(Club, id=club_id)
     club_name = club.name
     club.delete()
-    messages.success(request, f'Club "{club_name}" deleted successfully!')
+    msg = f'Club "{club_name}" deleted successfully!'
+    messages.success(request, msg)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'message': msg})
     return redirect('admin_clubs')
 
 
@@ -673,7 +692,10 @@ def admin_event_edit(request, event_id):
             event.image = request.FILES.get('image')
         
         event.save()
-        messages.success(request, f'Event "{event.title}" updated successfully!')
+        msg = f'Event "{event.title}" updated successfully!'
+        messages.success(request, msg)
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'success': True, 'message': msg})
         return redirect('admin_events')
     
     clubs = Club.objects.filter(is_active=True)
@@ -692,5 +714,8 @@ def admin_event_delete(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     event_title = event.title
     event.delete()
-    messages.success(request, f'Event "{event_title}" deleted successfully!')
+    msg = f'Event "{event_title}" deleted successfully!'
+    messages.success(request, msg)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True, 'message': msg})
     return redirect('admin_events')

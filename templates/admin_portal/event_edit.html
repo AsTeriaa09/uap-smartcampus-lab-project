@@ -1,0 +1,73 @@
+{% extends 'admin_portal/layout.html' %}
+
+{% block title %}Edit Event - UAP Admin{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
+        <h3 class="text-2xl font-bold text-primary mb-6">Edit Event</h3>
+        
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Event Title *</label>
+                <input type="text" name="title" value="{{ event.title }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
+                <textarea name="description" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">{{ event.description }}</textarea>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Club *</label>
+                <select name="club" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                    {% for club in clubs %}
+                    <option value="{{ club.id }}" {% if event.club.id == club.id %}selected{% endif %}>{{ club.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Event Date *</label>
+                    <input type="date" name="event_date" value="{{ event.event_date|date:'Y-m-d' }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Event Time *</label>
+                    <input type="time" name="event_time" value="{{ event.event_time|time:'H:i' }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Location *</label>
+                <input type="text" name="location" value="{{ event.location }}" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Event Image</label>
+                {% if event.image %}
+                <img src="{{ event.image.url }}" alt="{{ event.title }}" class="w-32 h-32 object-cover rounded-lg mb-2">
+                {% endif %}
+                <input type="file" name="image" accept="image/*" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+            </div>
+            
+            <div class="flex items-center">
+                <input type="checkbox" name="is_active" id="is_active" {% if event.is_active %}checked{% endif %} class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
+                <label for="is_active" class="ml-2 text-sm text-gray-700">Active</label>
+            </div>
+            
+            <div class="flex space-x-4 pt-4">
+                <button type="submit" class="px-8 py-3 gradient-bg text-white rounded-lg font-medium hover:shadow-lg smooth-transition">
+                    <i class="fas fa-save mr-2"></i>Update Event
+                </button>
+                <a href="{% url 'admin_events' %}" class="px-8 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 smooth-transition">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
