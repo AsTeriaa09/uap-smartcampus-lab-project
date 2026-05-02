@@ -3,6 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
+from django.db.models import Q
 from .models import MenuItem, BusRoute, Club, Event
 from django.contrib.auth.models import User
 from django.db.models import Count
@@ -665,7 +666,7 @@ def admin_event_add(request):
         messages.success(request, f'Event "{title}" added successfully!')
         return redirect('admin_events')
     
-    clubs = Club.objects.filter(is_active=True)
+    clubs = Club.objects.filter(is_active=True).order_by('name')
     return render(request, 'admin_portal/event_add.html', {
         'active_page': 'events',
         'page_title': 'Add Event',
@@ -698,7 +699,7 @@ def admin_event_edit(request, event_id):
             return JsonResponse({'success': True, 'message': msg})
         return redirect('admin_events')
     
-    clubs = Club.objects.filter(is_active=True)
+    clubs = Club.objects.filter(Q(is_active=True) | Q(id=event.club_id)).distinct().order_by('name')
     return render(request, 'admin_portal/event_edit.html', {
         'active_page': 'events',
         'page_title': 'Edit Event',

@@ -1,0 +1,67 @@
+{% extends 'authority/base.html' %}
+
+{% block title %}Dashboard - Authority Portal{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                <i class="fas fa-user-shield text-white"></i>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800">Authority Portal</h1>
+        </div>
+        <a href="{% url 'authority_logout' %}" class="text-red-600 hover:text-red-700 font-medium">
+            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+        </a>
+    </header>
+
+    <main class="p-6 max-w-6xl mx-auto">
+        {% if messages %}
+        <div class="mb-4 space-y-2">
+            {% for message in messages %}
+            <div class="p-3 rounded-lg {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} text-white">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <p class="text-sm text-gray-600">Total Menu Items</p>
+                <p class="text-3xl font-bold text-gray-800">{{ total_items }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <p class="text-sm text-gray-600">Available Items</p>
+                <p class="text-3xl font-bold text-green-600">{{ available_items }}</p>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <p class="text-sm text-gray-600">Categories</p>
+                <p class="text-3xl font-bold text-gray-800">{{ categories|length }}</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Category Breakdown</h3>
+            <div class="space-y-3">
+                {% for cat in categories %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <span class="font-medium text-gray-700 capitalize">{{ cat.category }}</span>
+                    <span class="px-3 py-1 bg-primary text-white rounded-full text-sm">{{ cat.count }}</span>
+                </div>
+                {% empty %}
+                <p class="text-gray-500">No menu items yet.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="mt-6">
+            <a href="{% url 'authority_menu_list' %}" class="inline-flex items-center px-6 py-3 gradient-bg text-white rounded-lg font-medium hover:shadow-lg transition">
+                <i class="fas fa-utensils mr-2"></i>Manage Menu Items
+            </a>
+        </div>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,91 @@
+{% extends 'authority/base.html' %}
+
+{% block title %}Menu Items - Authority Portal{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 gradient-bg rounded-lg flex items-center justify-center">
+                <i class="fas fa-user-shield text-white"></i>
+            </div>
+            <h1 class="text-xl font-bold text-gray-800">Authority Portal</h1>
+        </div>
+        <a href="{% url 'authority_logout' %}" class="text-red-600 hover:text-red-700 font-medium">
+            <i class="fas fa-sign-out-alt mr-1"></i>Logout
+        </a>
+    </header>
+
+    <main class="p-6 max-w-6xl mx-auto">
+        {% if messages %}
+        <div class="mb-4 space-y-2">
+            {% for message in messages %}
+            <div class="p-3 rounded-lg {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} text-white">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl font-bold text-gray-800">Menu Items</h2>
+            <a href="{% url 'authority_menu_add' %}" class="px-4 py-2 gradient-bg text-white rounded-lg hover:shadow-lg transition">
+                <i class="fas fa-plus mr-1"></i>Add Item
+            </a>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Category</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Price</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
+                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for item in menu_items %}
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 font-medium text-gray-800">{{ item.name }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600 capitalize">{{ item.category }}</td>
+                        <td class="px-6 py-4 text-sm text-gray-800">${{ item.price }}</td>
+                        <td class="px-6 py-4">
+                            {% if item.is_available %}
+                            <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">Available</span>
+                            {% else %}
+                            <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium">Unavailable</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex space-x-2">
+                                <a href="{% url 'authority_menu_edit' item.id %}" class="px-3 py-1 bg-primary text-white rounded hover:bg-secondary text-sm">
+                                    <i class="fas fa-edit mr-1"></i>Edit
+                                </a>
+                                <a href="{% url 'authority_menu_delete' item.id %}" class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 text-sm" onclick="return confirm('Delete this item?')">
+                                    <i class="fas fa-trash mr-1"></i>Delete
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                            <p>No menu items yet.</p>
+                            <a href="{% url 'authority_menu_add' %}" class="text-primary hover:underline mt-2 inline-block">Add your first item</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="mt-6">
+            <a href="{% url 'authority_dashboard' %}" class="text-primary hover:underline">
+                <i class="fas fa-arrow-left mr-1"></i>Back to Dashboard
+            </a>
+        </div>
+    </main>
+</div>
+{% endblock %}
