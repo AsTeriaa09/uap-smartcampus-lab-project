@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import MenuItem, BusRoute, Club, Event, Order, OrderItem
+from .models import MenuItem, BusRoute, Club, Event, Order, OrderItem, EventRegistration
 from django.contrib.auth.models import User
 from django.db.models import Count
 
@@ -76,9 +76,17 @@ def homepage(request):
 
 @login_required
 def dashboard(request):
+    from django.utils import timezone
+    registered_events = EventRegistration.objects.filter(
+        user=request.user,
+        event__is_active=True,
+        event__event_date__gte=timezone.now().date()
+    ).select_related('event', 'event__club').order_by('event__event_date', 'event__event_time')[:5]
+    
     return render(request, 'dashboard.html', {
         'active_page': 'dashboard',
-        'page_title': 'Dashboard'
+        'page_title': 'Dashboard',
+        'registered_events': registered_events,
     })
 
 
@@ -126,9 +134,16 @@ def transportation(request):
 def events(request):
     from django.core.serializers.json import DjangoJSONEncoder
     import json
+    from django.utils import timezone
     
     clubs = Club.objects.filter(is_active=True)
     all_events = Event.objects.filter(is_active=True).order_by('event_date', 'event_time')
+    
+    # Get user's registered event IDs
+    user_registered_event_ids = set(
+        EventRegistration.objects.filter(user=request.user)
+        .values_list('event_id', flat=True)
+    )
     
     # Prepare clubs data for JavaScript
     clubs_data = []
@@ -159,6 +174,8 @@ def events(request):
             'location': event.location,
             'image': event.image.url if event.image else None,
             'is_active': event.is_active,
+            'is_registered': event.id in user_registered_event_ids,
+            'registration_count': event.registration_count,
         })
     
     return render(request, 'events.html', {
@@ -168,6 +185,76 @@ def events(request):
         'events': all_events,
         'clubs_json': json.dumps(clubs_data, cls=DjangoJSONEncoder),
         'events_json': json.dumps(events_data, cls=DjangoJSONEncoder),
+        'user_registered_event_ids': user_registered_event_ids,
+    })
+
+
+@login_required
+def register_for_event(request, event_id):
+    """Register user for an event via AJAX"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+    
+    event = get_object_or_404(Event, id=event_id, is_active=True)
+    
+    # Check if already registered
+    if EventRegistration.objects.filter(user=request.user, event=event).exists():
+        return JsonResponse({
+            'success': False,
+            'message': 'You are already registered for this event',
+            'is_registered': True,
+            'registration_count': event.registration_count
+        })
+    
+    EventRegistration.objects.create(user=request.user, event=event)
+    
+    return JsonResponse({
+        'success': True,
+        'message': f'Successfully registered for "{event.title}"',
+        'is_registered': True,
+        'registration_count': event.registration_count
+    })
+
+
+@login_required
+def unregister_from_event(request, event_id):
+    """Unregister user from an event via AJAX"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+    
+    event = get_object_or_404(Event, id=event_id, is_active=True)
+    
+    registration = EventRegistration.objects.filter(user=request.user, event=event).first()
+    if not registration:
+        return JsonResponse({
+            'success': False,
+            'message': 'You are not registered for this event',
+            'is_registered': False,
+            'registration_count': event.registration_count
+        })
+    
+    registration.delete()
+    
+    return JsonResponse({
+        'success': True,
+        'message': f'Successfully unregistered from "{event.title}"',
+        'is_registered': False,
+        'registration_count': event.registration_count
+    })
+
+
+@login_required
+def my_registered_events(request):
+    """Display user's registered events"""
+    registrations = EventRegistration.objects.filter(
+        user=request.user,
+        event__is_active=True
+    ).select_related('event', 'event__club').order_by('event__event_date', 'event__event_time')
+    
+    return render(request, 'my_registered_events.html', {
+        'active_page': 'events',
+        'page_title': 'My Registered Events',
+        'registrations': registrations,
     })
 
 

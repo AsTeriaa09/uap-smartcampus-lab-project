@@ -91,6 +91,23 @@ class Event(models.Model):
     class Meta:
         ordering = ['event_date', 'event_time']
 
+    @property
+    def registration_count(self):
+        return self.registrations.count()
+
+
+class EventRegistration(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='event_registrations')
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='registrations')
+    registered_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['user', 'event']
+        ordering = ['-registered_at']
+
+    def __str__(self):
+        return f"{self.user.username} registered for {self.event.title}"
+
 
 class Order(models.Model):
     STATUS_CHOICES = [

@@ -6,9 +6,14 @@
 {% block content %}
 <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 class="text-2xl font-bold text-black mb-2">Events & Clubs 🎉</h2>
-        <p class="text-gray-600">Discover campus events, clubs, and activities.</p>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
+        <div>
+            <h2 class="text-2xl font-bold text-black mb-2">Events & Clubs 🎉</h2>
+            <p class="text-gray-600">Discover campus events, clubs, and activities.</p>
+        </div>
+        <a href="{% url 'my_registered_events' %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+            <i class="fas fa-ticket-alt mr-2"></i>My Registrations
+        </a>
     </div>
 
     <!-- Tabs -->
@@ -93,9 +98,21 @@
                                 </div>
                             </div>
                             <p class="text-gray-600 mb-3">{{ event.description|truncatewords:25 }}</p>
-                            <div class="flex flex-wrap gap-4 text-sm text-gray-600">
+                            <div class="flex flex-wrap gap-4 text-sm text-gray-600 mb-4">
                                 <span><i class="fas fa-map-marker-alt text-primary mr-2"></i>{{ event.location }}</span>
                                 <span><i class="fas fa-clock text-primary mr-2"></i>{{ event.event_date|date:"l, F d, Y" }}</span>
+                                <span><i class="fas fa-users text-primary mr-2"></i><span id="reg-count-{{ event.id }}">{{ event.registrations.count }} registered</span></span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                {% if event.id in user_registered_event_ids %}
+                                <button onclick="event.stopPropagation(); unregisterFromEvent({{ event.id }})" id="btn-event-{{ event.id }}" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-medium">
+                                    <i class="fas fa-times mr-1"></i>Unregister
+                                </button>
+                                {% else %}
+                                <button onclick="event.stopPropagation(); registerForEvent({{ event.id }})" id="btn-event-{{ event.id }}" class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm font-medium">
+                                    <i class="fas fa-check mr-1"></i>Register
+                                </button>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -268,5 +285,102 @@ document.addEventListener('keydown', function(e) {
         closeClubModal();
     }
 });
+
+// Event registration functions
+function getCsrfToken() {
+    const name = 'csrftoken';
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function updateEventButton(eventId, isRegistered, registrationCount) {
+    const btn = document.getElementById('btn-event-' + eventId);
+    const countEl = document.getElementById('reg-count-' + eventId);
+    if (btn) {
+        if (isRegistered) {
+            btn.className = 'px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition text-sm font-medium';
+            btn.innerHTML = '<i class="fas fa-times mr-1"></i>Unregister';
+            btn.onclick = function(e) { e.stopPropagation(); unregisterFromEvent(eventId); };
+        } else {
+            btn.className = 'px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm font-medium';
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Register';
+            btn.onclick = function(e) { e.stopPropagation(); registerForEvent(eventId); };
+        }
+    }
+    if (countEl) {
+        countEl.textContent = registrationCount + ' registered';
+    }
+    // Also update eventsData
+    const event = eventsData.find(e => e.id === eventId);
+    if (event) {
+        event.is_registered = isRegistered;
+        event.registration_count = registrationCount;
+    }
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `fixed bottom-4 right-4 px-6 py-3 rounded-lg text-white font-medium z-50 transition-opacity duration-300 ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+function registerForEvent(eventId) {
+    fetch(`/events/register/${eventId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateEventButton(eventId, true, data.registration_count);
+            showToast(data.message, 'success');
+        } else {
+            showToast(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('An error occurred. Please try again.', 'error');
+    });
+}
+
+function unregisterFromEvent(eventId) {
+    fetch(`/events/unregister/${eventId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCsrfToken(),
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            updateEventButton(eventId, false, data.registration_count);
+            showToast(data.message, 'success');
+        } else {
+            showToast(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        showToast('An error occurred. Please try again.', 'error');
+    });
+}
 </script>
 {% endblock %}

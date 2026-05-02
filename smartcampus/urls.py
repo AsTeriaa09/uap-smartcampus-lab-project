@@ -14,7 +14,8 @@ from main.views import (
     admin_clubs, admin_club_add, admin_club_edit, admin_club_delete,
     admin_events, admin_event_add, admin_event_edit, admin_event_delete,
     add_to_cart, update_cart_item, remove_from_cart, cart_view, confirm_order, order_now, my_orders,
-    admin_orders, admin_order_detail, admin_order_status
+    admin_orders, admin_order_detail, admin_order_status,
+    register_for_event, unregister_from_event, my_registered_events
 )
 
 urlpatterns = [
@@ -27,6 +28,9 @@ urlpatterns = [
     path('cafeteria/', cafeteria, name='cafeteria'),
     path('transportation/', transportation, name='transportation'),
     path('events/', events, name='events'),
+    path('events/register/<int:event_id>/', register_for_event, name='register_for_event'),
+    path('events/unregister/<int:event_id>/', unregister_from_event, name='unregister_from_event'),
+    path('events/my-registrations/', my_registered_events, name='my_registered_events'),
     path('ai/', ai, name='ai'),
     path('home/', homepage, name='home'),
     
