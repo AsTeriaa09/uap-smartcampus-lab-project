@@ -48,11 +48,23 @@
                     {% endif %}
                 </div>
                 {% if item.is_available %}
-                <div class="flex items-center space-x-2">
-                    <input type="number" id="qty-{{ item.id }}" value="1" min="1" max="10" class="w-16 px-2 py-2 border border-gray-300 rounded-lg text-center">
-                    <button onclick="addToCart({{ item.id }})" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition font-medium text-sm">
-                        <i class="fas fa-cart-plus mr-1"></i>Add to Cart
-                    </button>
+                <div class="space-y-2">
+                    <div class="flex items-center space-x-2">
+                        <label class="text-sm text-gray-600">Qty:</label>
+                        <input type="number" id="qty-{{ item.id }}" value="1" min="1" max="10" class="w-16 px-2 py-2 border border-gray-300 rounded-lg text-center">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button data-item-id="{{ item.id }}" class="add-to-cart-btn flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition font-medium text-sm">
+                            <i class="fas fa-cart-plus mr-1"></i>Add to Cart
+                        </button>
+                        <form method="POST" action="{% url 'order_now' item.id %}" class="flex-1">
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" id="order-qty-{{ item.id }}" value="1">
+                            <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm">
+                                <i class="fas fa-bolt mr-1"></i>Order Now
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 {% endif %}
             </div>
@@ -84,37 +96,49 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function addToCart(itemId) {
-    const qty = document.getElementById('qty-' + itemId).value;
-    const btn = event.target.closest('button');
-    const originalText = btn.innerHTML;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Adding...';
-    btn.disabled = true;
+document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const itemId = this.dataset.itemId;
+        const qty = document.getElementById('qty-' + itemId).value;
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Adding...';
+        this.disabled = true;
 
-    fetch('/cafeteria/add-to-cart/' + itemId + '/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
-        },
-        body: new URLSearchParams({quantity: qty})
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.success) {
-            updateCartBadge(data.cart_count);
-            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Added!';
-            setTimeout(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }, 1500);
-        }
-    })
-    .catch(() => {
-        btn.innerHTML = originalText;
-        btn.disabled = false;
+        fetch('/cafeteria/add-to-cart/' + itemId + '/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams({quantity: qty})
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                updateCartBadge(data.cart_count);
+                this.innerHTML = '<i class="fas fa-check mr-1"></i>Added!';
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }, 1500);
+            }
+        })
+        .catch(() => {
+            this.innerHTML = originalText;
+            this.disabled = false;
+        });
     });
-}
+});
+
+document.querySelectorAll('input[type="number"][id^="qty-"]').forEach(input => {
+    input.addEventListener('change', function() {
+        const itemId = this.id.replace('qty-', '');
+        const orderQty = document.getElementById('order-qty-' + itemId);
+        if (orderQty) {
+            orderQty.value = this.value;
+        }
+    });
+});
 
 function updateCartBadge(count) {
     const badge = document.getElementById('cartBadge');

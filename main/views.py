@@ -854,6 +854,40 @@ def confirm_order(request):
 
 
 @login_required
+def order_now(request, item_id):
+    """Order a single item immediately (bypass cart)"""
+    if request.method != 'POST':
+        return redirect('cafeteria')
+    
+    try:
+        item = MenuItem.objects.get(id=item_id, is_available=True)
+    except MenuItem.DoesNotExist:
+        messages.error(request, 'Item not found or unavailable')
+        return redirect('cafeteria')
+    
+    quantity = int(request.POST.get('quantity', 1))
+    if quantity < 1:
+        quantity = 1
+    if quantity > 10:
+        quantity = 10
+    
+    order = Order.objects.create(
+        user=request.user,
+        status='confirmed',
+        total_amount=item.price * quantity
+    )
+    OrderItem.objects.create(
+        order=order,
+        menu_item=item,
+        quantity=quantity,
+        price_at_time=item.price
+    )
+    
+    messages.success(request, f'Order #{order.id} for {item.name} placed successfully!')
+    return redirect('my_orders')
+
+
+@login_required
 def my_orders(request):
     """Display user's order history"""
     orders = Order.objects.filter(user=request.user).prefetch_related('items__menu_item').order_by('-created_at')

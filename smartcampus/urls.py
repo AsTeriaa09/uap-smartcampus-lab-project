@@ -13,7 +13,7 @@ from main.views import (
     admin_bus_routes, admin_bus_add, admin_bus_edit, admin_bus_delete,
     admin_clubs, admin_club_add, admin_club_edit, admin_club_delete,
     admin_events, admin_event_add, admin_event_edit, admin_event_delete,
-    add_to_cart, update_cart_item, remove_from_cart, cart_view, confirm_order, my_orders,
+    add_to_cart, update_cart_item, remove_from_cart, cart_view, confirm_order, order_now, my_orders,
     admin_orders, admin_order_detail, admin_order_status
 )
 
@@ -67,6 +67,7 @@ urlpatterns = [
     path('cafeteria/cart/update/<int:item_id>/', update_cart_item, name='update_cart_item'),
     path('cafeteria/cart/remove/<int:item_id>/', remove_from_cart, name='remove_from_cart'),
     path('cafeteria/order/confirm/', confirm_order, name='confirm_order'),
+    path('cafeteria/order-now/<int:item_id>/', order_now, name='order_now'),
     path('orders/', my_orders, name='my_orders'),
     
     # Admin Orders
