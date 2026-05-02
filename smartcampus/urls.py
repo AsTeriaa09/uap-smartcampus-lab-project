@@ -12,7 +12,9 @@ from main.views import (
     admin_menu_list, admin_menu_add, admin_menu_edit, admin_menu_delete,
     admin_bus_routes, admin_bus_add, admin_bus_edit, admin_bus_delete,
     admin_clubs, admin_club_add, admin_club_edit, admin_club_delete,
-    admin_events, admin_event_add, admin_event_edit, admin_event_delete
+    admin_events, admin_event_add, admin_event_edit, admin_event_delete,
+    add_to_cart, update_cart_item, remove_from_cart, cart_view, confirm_order, my_orders,
+    admin_orders, admin_order_detail, admin_order_status
 )
 
 urlpatterns = [
@@ -58,6 +60,19 @@ urlpatterns = [
     path('uapadmin/events/add/', admin_event_add, name='admin_event_add'),
     path('uapadmin/events/<int:event_id>/edit/', admin_event_edit, name='admin_event_edit'),
     path('uapadmin/events/<int:event_id>/delete/', admin_event_delete, name='admin_event_delete'),
+    
+    # User Cart & Orders
+    path('cafeteria/add-to-cart/<int:item_id>/', add_to_cart, name='add_to_cart'),
+    path('cafeteria/cart/', cart_view, name='cart_view'),
+    path('cafeteria/cart/update/<int:item_id>/', update_cart_item, name='update_cart_item'),
+    path('cafeteria/cart/remove/<int:item_id>/', remove_from_cart, name='remove_from_cart'),
+    path('cafeteria/order/confirm/', confirm_order, name='confirm_order'),
+    path('orders/', my_orders, name='my_orders'),
+    
+    # Admin Orders
+    path('uapadmin/orders/', admin_orders, name='admin_orders'),
+    path('uapadmin/orders/<int:order_id>/', admin_order_detail, name='admin_order_detail'),
+    path('uapadmin/orders/<int:order_id>/status/', admin_order_status, name='admin_order_status'),
 ]
 
 # Serve media files during development

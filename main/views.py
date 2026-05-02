@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse
 from django.db.models import Q
-from .models import MenuItem, BusRoute, Club, Event
+from .models import MenuItem, BusRoute, Club, Event, Order, OrderItem
 from django.contrib.auth.models import User
 from django.db.models import Count
 
@@ -343,6 +343,9 @@ def admin_dashboard(request):
     active_clubs = Club.objects.filter(is_active=True).count()
     total_events = Event.objects.count()
     upcoming_events = Event.objects.filter(is_active=True, event_date__gte='2026-04-24').count()
+    total_orders = Order.objects.count()
+    confirmed_orders = Order.objects.filter(status='confirmed').count()
+    completed_orders = Order.objects.filter(status='completed').count()
     
     context = {
         'active_page': 'dashboard',
@@ -355,6 +358,9 @@ def admin_dashboard(request):
         'active_clubs': active_clubs,
         'total_events': total_events,
         'upcoming_events': upcoming_events,
+        'total_orders': total_orders,
+        'confirmed_orders': confirmed_orders,
+        'completed_orders': completed_orders,
     }
     return render(request, 'admin_portal/dashboard.html', context)
 
@@ -720,3 +726,202 @@ def admin_event_delete(request, event_id):
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({'success': True, 'message': msg})
     return redirect('admin_events')
+
+
+# ==========================================
+# User Cart & Order Views
+# ==========================================
+
+@login_required
+def add_to_cart(request, item_id):
+    """Add item to session cart via AJAX"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+    
+    item = get_object_or_404(MenuItem, id=item_id, is_available=True)
+    quantity = int(request.POST.get('quantity', 1))
+    
+    cart = request.session.get('cart', {})
+    cart[str(item_id)] = cart.get(str(item_id), 0) + quantity
+    request.session['cart'] = cart
+    request.session.modified = True
+    
+    cart_count = sum(cart.values())
+    return JsonResponse({'success': True, 'message': f'Added {item.name} to cart', 'cart_count': cart_count})
+
+
+@login_required
+def update_cart_item(request, item_id):
+    """Update cart item quantity via AJAX"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+    
+    quantity = int(request.POST.get('quantity', 1))
+    cart = request.session.get('cart', {})
+    
+    if str(item_id) in cart:
+        if quantity > 0:
+            cart[str(item_id)] = quantity
+        else:
+            del cart[str(item_id)]
+        request.session['cart'] = cart
+        request.session.modified = True
+    
+    cart_count = sum(cart.values())
+    return JsonResponse({'success': True, 'cart_count': cart_count})
+
+
+@login_required
+def remove_from_cart(request, item_id):
+    """Remove item from session cart via AJAX"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid request method'})
+    
+    cart = request.session.get('cart', {})
+    if str(item_id) in cart:
+        del cart[str(item_id)]
+        request.session['cart'] = cart
+        request.session.modified = True
+    
+    cart_count = sum(cart.values())
+    return JsonResponse({'success': True, 'message': 'Item removed from cart', 'cart_count': cart_count})
+
+
+@login_required
+def cart_view(request):
+    """Display cart page"""
+    cart = request.session.get('cart', {})
+    cart_items = []
+    total = 0
+    
+    for item_id, quantity in cart.items():
+        try:
+            item = MenuItem.objects.get(id=int(item_id), is_available=True)
+            subtotal = item.price * quantity
+            total += subtotal
+            cart_items.append({
+                'item': item,
+                'quantity': quantity,
+                'subtotal': subtotal,
+            })
+        except MenuItem.DoesNotExist:
+            continue
+    
+    return render(request, 'cart.html', {
+        'active_page': 'cafeteria',
+        'page_title': 'My Cart',
+        'cart_items': cart_items,
+        'total': total,
+    })
+
+
+@login_required
+def confirm_order(request):
+    """Confirm order from session cart"""
+    if request.method != 'POST':
+        return redirect('cart_view')
+    
+    cart = request.session.get('cart', {})
+    if not cart:
+        messages.error(request, 'Your cart is empty')
+        return redirect('cart_view')
+    
+    order = Order.objects.create(user=request.user, status='confirmed', total_amount=0)
+    total = 0
+    
+    for item_id, quantity in cart.items():
+        try:
+            item = MenuItem.objects.get(id=int(item_id), is_available=True)
+            subtotal = item.price * quantity
+            total += subtotal
+            OrderItem.objects.create(
+                order=order,
+                menu_item=item,
+                quantity=quantity,
+                price_at_time=item.price
+            )
+        except MenuItem.DoesNotExist:
+            continue
+    
+    order.total_amount = total
+    order.save()
+    
+    request.session['cart'] = {}
+    request.session.modified = True
+    
+    messages.success(request, f'Order #{order.id} placed successfully!')
+    return redirect('my_orders')
+
+
+@login_required
+def my_orders(request):
+    """Display user's order history"""
+    orders = Order.objects.filter(user=request.user).prefetch_related('items__menu_item').order_by('-created_at')
+    return render(request, 'my_orders.html', {
+        'active_page': 'cafeteria',
+        'page_title': 'My Orders',
+        'orders': orders,
+    })
+
+
+# ==========================================
+# Admin Order Management Views
+# ==========================================
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='/uapadmin/login/')
+def admin_orders(request):
+    """List all orders in admin portal"""
+    status_filter = request.GET.get('status', '')
+    orders = Order.objects.select_related('user').prefetch_related('items__menu_item').order_by('-created_at')
+    
+    if status_filter:
+        orders = orders.filter(status=status_filter)
+    
+    status_counts = {
+        'all': Order.objects.count(),
+        'confirmed': Order.objects.filter(status='confirmed').count(),
+        'completed': Order.objects.filter(status='completed').count(),
+        'cancelled': Order.objects.filter(status='cancelled').count(),
+    }
+    
+    return render(request, 'admin_portal/order_list.html', {
+        'active_page': 'orders',
+        'page_title': 'Orders',
+        'orders': orders,
+        'status_filter': status_filter,
+        'status_counts': status_counts,
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='/uapadmin/login/')
+def admin_order_detail(request, order_id):
+    """View order details in admin portal"""
+    order = get_object_or_404(Order.objects.select_related('user').prefetch_related('items__menu_item'), id=order_id)
+    return render(request, 'admin_portal/order_detail.html', {
+        'active_page': 'orders',
+        'page_title': f'Order #{order.id}',
+        'order': order,
+    })
+
+
+@login_required
+@user_passes_test(lambda u: u.is_superuser, login_url='/uapadmin/login/')
+def admin_order_status(request, order_id):
+    """Update order status"""
+    order = get_object_or_404(Order, id=order_id)
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in dict(Order.STATUS_CHOICES):
+            order.status = new_status
+            order.save()
+            msg = f'Order #{order.id} status updated to {order.get_status_display()}'
+            messages.success(request, msg)
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True, 'message': msg})
+        else:
+            messages.error(request, 'Invalid status')
+    
+    return redirect('admin_order_detail', order_id=order.id)

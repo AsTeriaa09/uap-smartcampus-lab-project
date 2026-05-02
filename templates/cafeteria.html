@@ -33,7 +33,7 @@
                 
                 <p class="text-gray-600 text-sm mb-4">{{ item.description|default:"No description available." }}</p>
                 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between mb-4">
                     <span class="px-3 py-1 bg-black text-white text-xs font-semibold rounded-full uppercase">
                         {{ item.get_category_display }}
                     </span>
@@ -47,6 +47,14 @@
                         </span>
                     {% endif %}
                 </div>
+                {% if item.is_available %}
+                <div class="flex items-center space-x-2">
+                    <input type="number" id="qty-{{ item.id }}" value="1" min="1" max="10" class="w-16 px-2 py-2 border border-gray-300 rounded-lg text-center">
+                    <button onclick="addToCart({{ item.id }})" class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition font-medium text-sm">
+                        <i class="fas fa-cart-plus mr-1"></i>Add to Cart
+                    </button>
+                </div>
+                {% endif %}
             </div>
         </div>
         {% endfor %}
@@ -59,4 +67,62 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function addToCart(itemId) {
+    const qty = document.getElementById('qty-' + itemId).value;
+    const btn = event.target.closest('button');
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i>Adding...';
+    btn.disabled = true;
+
+    fetch('/cafeteria/add-to-cart/' + itemId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: new URLSearchParams({quantity: qty})
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            updateCartBadge(data.cart_count);
+            btn.innerHTML = '<i class="fas fa-check mr-1"></i>Added!';
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }, 1500);
+        }
+    })
+    .catch(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    });
+}
+
+function updateCartBadge(count) {
+    const badge = document.getElementById('cartBadge');
+    if (badge) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+        if (count === 0) badge.classList.add('hidden');
+    }
+}
+</script>
 {% endblock %}

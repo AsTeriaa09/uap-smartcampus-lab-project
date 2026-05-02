@@ -1,0 +1,65 @@
+{% extends 'user_base.html' %}
+
+{% block title %}My Orders - UAP SmartCampus{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <h2 class="text-2xl font-bold text-black mb-2">My Orders</h2>
+        <p class="text-gray-600">Track your cafeteria order history.</p>
+    </div>
+
+    {% if orders %}
+    <div class="space-y-4">
+        {% for order in orders %}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-500">Order #{{ order.id }}</p>
+                    <p class="text-xs text-gray-400">{{ order.created_at|date:"M d, Y h:i A" }}</p>
+                </div>
+                <div class="text-right">
+                    <span class="px-3 py-1 rounded-full text-xs font-medium capitalize
+                        {% if order.status == 'confirmed' %}bg-yellow-100 text-yellow-700
+                        {% elif order.status == 'completed' %}bg-green-100 text-green-700
+                        {% elif order.status == 'cancelled' %}bg-red-100 text-red-700
+                        {% else %}bg-gray-100 text-gray-700{% endif %}">
+                        {{ order.get_status_display }}
+                    </span>
+                    <p class="text-lg font-bold text-primary mt-1">৳{{ order.total_amount }}</p>
+                </div>
+            </div>
+            <div class="p-6">
+                <div class="space-y-2">
+                    {% for item in order.items.all %}
+                    <div class="flex items-center justify-between text-sm">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                                {% if item.menu_item.image %}
+                                <img src="{{ item.menu_item.image.url }}" alt="{{ item.menu_item.name }}" class="w-full h-full object-cover rounded-lg">
+                                {% else %}
+                                <i class="fas fa-utensils text-gray-400 text-sm"></i>
+                                {% endif %}
+                            </div>
+                            <span class="text-gray-800">{{ item.menu_item.name }}</span>
+                        </div>
+                        <span class="text-gray-600">{{ item.quantity }} x ৳{{ item.price_at_time }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+        <i class="fas fa-receipt text-gray-300 text-6xl mb-4"></i>
+        <h3 class="text-xl font-bold text-black mb-2">No Orders Yet</h3>
+        <p class="text-gray-600 mb-4">Place your first order from the cafeteria!</p>
+        <a href="{% url 'cafeteria' %}" class="px-6 py-3 gradient-bg text-white rounded-lg font-medium hover:shadow-lg transition inline-block">
+            <i class="fas fa-utensils mr-2"></i>Browse Menu
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

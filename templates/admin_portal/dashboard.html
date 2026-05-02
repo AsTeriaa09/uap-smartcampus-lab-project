@@ -11,7 +11,7 @@
     </div>
 
     <!-- Stats Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <!-- Menu Items Stats -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
             <div class="flex items-center justify-between">
@@ -64,6 +64,20 @@
                 </div>
                 <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center">
                     <i class="fas fa-calendar-alt text-white text-2xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Stats -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 card-hover">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-gray-600 mb-1">Orders</p>
+                    <p class="text-3xl font-bold text-primary">{{ confirmed_orders }}/{{ total_orders }}</p>
+                    <p class="text-xs text-gray-500 mt-1">Confirmed / Total</p>
+                </div>
+                <div class="w-14 h-14 gradient-bg rounded-xl flex items-center justify-center">
+                    <i class="fas fa-receipt text-white text-2xl"></i>
                 </div>
             </div>
         </div>

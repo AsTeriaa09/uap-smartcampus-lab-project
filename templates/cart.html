@@ -1,0 +1,151 @@
+{% extends 'user_base.html' %}
+
+{% block title %}My Cart - UAP SmartCampus{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+        <h2 class="text-2xl font-bold text-black mb-2">My Cart</h2>
+        <p class="text-gray-600">Review your items and confirm your order.</p>
+    </div>
+
+    {% if cart_items %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
+        <div class="divide-y divide-gray-200">
+            {% for entry in cart_items %}
+            <div class="p-6 flex items-center space-x-4" id="cart-row-{{ entry.item.id }}">
+                <div class="w-20 h-20 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                    {% if entry.item.image %}
+                    <img src="{{ entry.item.image.url }}" alt="{{ entry.item.name }}" class="w-full h-full object-cover rounded-lg">
+                    {% else %}
+                    <i class="fas fa-utensils text-gray-400 text-2xl"></i>
+                    {% endif %}
+                </div>
+                <div class="flex-1">
+                    <h3 class="font-bold text-gray-800">{{ entry.item.name }}</h3>
+                    <p class="text-sm text-gray-500">{{ entry.item.get_category_display }}</p>
+                    <p class="text-primary font-semibold mt-1">৳{{ entry.item.price }} each</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <input type="number" value="{{ entry.quantity }}" min="1" max="10"
+                           data-item-id="{{ entry.item.id }}"
+                           class="cart-qty w-16 px-2 py-2 border border-gray-300 rounded-lg text-center">
+                    <span class="font-bold text-gray-800 w-20 text-right">৳{{ entry.subtotal }}</span>
+                    <button data-remove-id="{{ entry.item.id }}" class="cart-remove text-red-500 hover:text-red-700 transition ml-2">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="p-6 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+            <span class="text-gray-600">Total Items: <span id="cartTotalItems">{{ cart_items|length }}</span></span>
+            <div class="text-right">
+                <p class="text-sm text-gray-600">Total Amount</p>
+                <p class="text-2xl font-bold text-primary">৳{{ total }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-between">
+        <a href="{% url 'cafeteria' %}" class="text-primary hover:underline">
+            <i class="fas fa-arrow-left mr-1"></i>Continue Shopping
+        </a>
+        <form method="POST" action="{% url 'confirm_order' %}">
+            {% csrf_token %}
+            <button type="submit" class="px-8 py-3 gradient-bg text-white rounded-lg font-medium hover:shadow-lg transition">
+                <i class="fas fa-check-circle mr-2"></i>Confirm Order
+            </button>
+        </form>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
+        <i class="fas fa-shopping-cart text-gray-300 text-6xl mb-4"></i>
+        <h3 class="text-xl font-bold text-black mb-2">Your Cart is Empty</h3>
+        <p class="text-gray-600 mb-4">Browse the cafeteria menu and add some items!</p>
+        <a href="{% url 'cafeteria' %}" class="px-6 py-3 gradient-bg text-white rounded-lg font-medium hover:shadow-lg transition inline-block">
+            <i class="fas fa-utensils mr-2"></i>Browse Menu
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function updateCartBadge(count) {
+    const badge = document.getElementById('cartBadge');
+    if (badge) {
+        badge.textContent = count;
+        badge.classList.remove('hidden');
+        if (count === 0) badge.classList.add('hidden');
+    }
+}
+
+function updateCartQty(itemId, qty) {
+    fetch('/cafeteria/cart/update/' + itemId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: new URLSearchParams({quantity: qty})
+    })
+    .then(r => r.json())
+    .then(data => {
+        updateCartBadge(data.cart_count);
+        location.reload();
+    });
+}
+
+// Event delegation for cart interactions
+document.addEventListener('change', function(e) {
+    const input = e.target.closest('.cart-qty');
+    if (input) {
+        updateCartQty(input.dataset.itemId, input.value);
+    }
+});
+
+document.addEventListener('click', function(e) {
+    const btn = e.target.closest('.cart-remove');
+    if (btn) {
+        removeFromCart(btn.dataset.removeId);
+    }
+});
+
+function removeFromCart(itemId) {
+    if (!confirm('Remove this item from cart?')) return;
+    fetch('/cafeteria/cart/remove/' + itemId + '/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        updateCartBadge(data.cart_count);
+        const row = document.getElementById('cart-row-' + itemId);
+        if (row) {
+            row.style.transition = 'all 0.3s ease';
+            row.style.opacity = '0';
+            row.style.transform = 'translateX(20px)';
+            setTimeout(() => location.reload(), 300);
+        }
+    });
+}
+</script>
+{% endblock %}

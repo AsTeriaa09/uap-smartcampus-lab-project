@@ -54,6 +54,14 @@
                 <h2 class="text-xl font-semibold text-primary">{{ page_title }}</h2>
             </div>
 
+            <!-- Cart Icon -->
+            <a href="{% url 'cart_view' %}" class="relative text-gray-600 hover:text-primary transition mr-4">
+                <i class="fas fa-shopping-cart text-xl"></i>
+                <span id="cartBadge" class="{% if not cart_count %}hidden{% endif %} absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                    {{ cart_count }}
+                </span>
+            </a>
+
             <!-- User Avatar Dropdown -->
             <div class="relative">
                 <button onclick="toggleDropdown()" class="flex items-center space-x-3 focus:outline-none">
