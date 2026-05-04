@@ -35,7 +35,7 @@
                         <label class="block text-sm font-medium text-gray-700 mb-2">To</label>
                         <input type="text" id="search-to" placeholder="Enter destination" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
                     </div>
-                    <button onclick="filterRoutes()" class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition">
+                    <button onclick="filterRoutes()" class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-primary/90 transition hidden">
                         Search Routes
                     </button>
                 </div>
@@ -84,23 +84,58 @@
 </div>
 
 <script>
-// Initialize the map
-document.addEventListener('DOMContentLoaded', function() {
-    // UAP Campus coordinates (example - adjust as needed)
-    const uapCampus = [23.7461, 90.3742]; // Dhaka, Bangladesh coordinates
+// Global variables
+let map;
+let allBusRoutes;
+
+// Function to display routes on map
+function displayRoutesOnMap(routes) {
+    // Clear existing markers
+    if (map) {
+        map.eachLayer(function(layer) {
+            if (layer instanceof L.Marker) {
+                map.removeLayer(layer);
+            }
+        });
+    }
     
-    const map = L.map('map').setView(uapCampus, 15);
-    
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    if (routes.length === 0) {
+        // Show no results message
+        document.getElementById('route-cards').innerHTML = `
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+                <i class="fas fa-exclamation-circle text-gray-400 text-5xl mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-800 mb-2">No Routes Found</h3>
+                <p class="text-gray-600 mb-4">We couldn't find any bus routes matching your search criteria.</p>
+                <div class="bg-gray-50 rounded-lg p-4 max-w-md mx-auto">
+                    <h4 class="font-semibold text-gray-700 mb-2">Try these suggestions:</h4>
+                    <ul class="text-left text-sm space-y-1 text-gray-600">
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Check spelling of locations</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Try broader search terms</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Search by route name instead</li>
+                        <li class="flex items-center"><i class="fas fa-check-circle text-green-500 mr-2"></i> Clear filters to see all routes</li>
+                    </ul>
+                </div>
+                <button onclick="clearSearch()" class="mt-4 bg-primary text-white py-2 px-6 rounded-lg hover:bg-primary/90 transition">
+                    Clear Filters & View All
+                </button>
+            </div>
+        `;
+        return;
+    }
     
     // Add bus route markers
-    const busRoutes = {{ bus_routes_json|safe }};
-    
-    busRoutes.forEach(function(route, index) {
-        const marker = L.marker(uapCampus).addTo(map);
+    routes.forEach(function(route, index) {
+        // Create a simple marker at campus location for now
+        // In production, you'd use actual coordinates
+        const marker = L.marker([23.7461, 90.3742]).addTo(map);
+        
+        // Center map on this route (zoom in more for single route)
+        if (routes.length === 1) {
+            map.setView([23.7461, 90.3742], 16);
+        } else if (routes.length <= 3) {
+            map.setView([23.7461, 90.3742], 15);
+        }
+        
         marker.bindPopup(`
             <div class="text-center">
                 <strong class="text-primary">${route.route_name}</strong><br>
@@ -110,28 +145,93 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `);
     });
+    
+    // Update route cards
+    const routeCardsContainer = document.getElementById('route-cards');
+    if (routes.length > 0) {
+        let cardsHtml = '';
+        routes.forEach(function(route) {
+            cardsHtml += `
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 route-card" 
+                     data-departure="${route.departure_point.toLowerCase()}" 
+                     data-destination="${route.destination.toLowerCase()}">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-semibold text-primary">${route.route_name}</h4>
+                        <span class="text-sm ${route.status === 'on_time' ? 'text-green-600' : route.status === 'delayed' ? 'text-yellow-600' : 'text-red-600'} font-medium">
+                            ${route.status_display}
+                        </span>
+                    </div>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                            <span>${route.departure_point} → ${route.destination}</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <i class="fas fa-clock text-primary"></i>
+                            <span>${route.departure_time} - ${route.arrival_time}</span>
+                        </div>
+                        ${route.description ? `<div class="flex items-start space-x-2">
+                            <i class="fas fa-info-circle text-primary mt-1"></i>
+                            <span>${route.description}</span>
+                        </div>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        routeCardsContainer.innerHTML = cardsHtml;
+    }
+}
+
+// Initialize the map and load routes
+document.addEventListener('DOMContentLoaded', function() {
+    // UAP Campus coordinates (example - adjust as needed)
+    const uapCampus = [23.7461, 90.3742]; // Dhaka, Bangladesh coordinates
+    
+    map = L.map('map').setView(uapCampus, 15);
+    
+    // Add OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+    
+    // Store all routes for filtering
+    allBusRoutes = JSON.parse('{{ bus_routes_json|escapejs }}');
+    
+    // Initial display of all routes
+    displayRoutesOnMap(allBusRoutes);
+    
+    // Filter routes based on search
+    function filterRoutes() {
+        const fromValue = document.getElementById('search-from').value.toLowerCase().trim();
+        const toValue = document.getElementById('search-to').value.toLowerCase().trim();
+        
+        // Filter routes
+        const filteredRoutes = allBusRoutes.filter(function(route) {
+            const matchesFrom = !fromValue || route.departure_point.toLowerCase().includes(fromValue) || route.route_name.toLowerCase().includes(fromValue);
+            const matchesTo = !toValue || route.destination.toLowerCase().includes(toValue) || route.route_name.toLowerCase().includes(toValue);
+            return matchesFrom && matchesTo;
+        });
+        
+        displayRoutesOnMap(filteredRoutes);
+    }
+    
+    // Add event listeners for real-time filtering
+    document.getElementById('search-from').addEventListener('input', filterRoutes);
+    document.getElementById('search-to').addEventListener('input', filterRoutes);
 });
 
-// Filter routes based on search
-function filterRoutes() {
-    const fromValue = document.getElementById('search-from').value.toLowerCase();
-    const toValue = document.getElementById('search-to').value.toLowerCase();
-    
-    const routeCards = document.querySelectorAll('.route-card');
-    
-    routeCards.forEach(card => {
-        const departure = card.getAttribute('data-departure');
-        const destination = card.getAttribute('data-destination');
-        
-        const matchesFrom = !fromValue || departure.includes(fromValue);
-        const matchesTo = !toValue || destination.includes(toValue);
-        
-        if (matchesFrom && matchesTo) {
-            card.style.display = 'block';
-        } else {
-            card.style.display = 'none';
-        }
-    });
+// Make clearSearch globally accessible
+function clearSearch() {
+    document.getElementById('search-from').value = '';
+    document.getElementById('search-to').value = '';
+    // Reset to initial view
+    if (map) {
+        map.setView([23.7461, 90.3742], 15);
+    }
+    // Display all routes
+    if (allBusRoutes) {
+        displayRoutesOnMap(allBusRoutes);
+    }
 }
 </script>
 {% endblock %}
