@@ -6,6 +6,7 @@ from django.conf.urls.static import static
 from main.views import (
     homepage, user_login, user_register, user_logout, 
     dashboard, cafeteria, transportation, events, ai,
+    ai_chat_api,
     authority_login, authority_logout, authority_dashboard,
     authority_menu_list, authority_menu_add, authority_menu_edit, authority_menu_delete,
     admin_login, admin_logout, admin_dashboard,
@@ -32,6 +33,7 @@ urlpatterns = [
     path('events/unregister/<int:event_id>/', unregister_from_event, name='unregister_from_event'),
     path('events/my-registrations/', my_registered_events, name='my_registered_events'),
     path('ai/', ai, name='ai'),
+    path('ai/chat/', ai_chat_api, name='ai_chat_api'),
     path('home/', homepage, name='home'),
     
     # Authority Management Portal
