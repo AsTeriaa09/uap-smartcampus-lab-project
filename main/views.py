@@ -313,22 +313,44 @@ def ai_chat_api(request):
         
         # Get Groq API key from environment
         groq_api_key = os.getenv('GROQ_API_KEY')
+        print(f'GROQ_API_KEY loaded: {groq_api_key is not None}')
         if not groq_api_key:
             return JsonResponse({'error': 'Groq API key not configured.'}, status=500)
         
         # Fetch campus data for context
         menu_items = list(MenuItem.objects.filter(is_available=True).values('name', 'description', 'price', 'category'))[:5]
+        # Convert Decimal fields to strings for JSON serialization
+        for item in menu_items:
+            if 'price' in item and hasattr(item['price'], 'quantize'):
+                item['price'] = float(item['price'])
+        
         bus_routes = list(BusRoute.objects.filter(is_active=True).values('route_name', 'departure_point', 'destination', 'departure_time', 'arrival_time', 'status'))[:3]
+        # Convert time fields to strings for JSON serialization
+        for route in bus_routes:
+            if 'departure_time' in route and hasattr(route['departure_time'], 'strftime'):
+                route['departure_time'] = route['departure_time'].strftime('%H:%M')
+            if 'arrival_time' in route and hasattr(route['arrival_time'], 'strftime'):
+                route['arrival_time'] = route['arrival_time'].strftime('%H:%M')
+        
         clubs = list(Club.objects.filter(is_active=True).values('name', 'description', 'category', 'president'))[:3]
         events = list(Event.objects.filter(is_active=True).values('title', 'description', 'event_date', 'event_time', 'location'))[:3]
+        # Convert date/time fields to strings for JSON serialization
+        for event in events:
+            if 'event_date' in event and hasattr(event['event_date'], 'isoformat'):
+                event['event_date'] = event['event_date'].isoformat()
+            if 'event_time' in event and hasattr(event['event_time'], 'strftime'):
+                event['event_time'] = event['event_time'].strftime('%H:%M:%S')
         
-        # Get user-specific data
-        user_registered_events = list(EventRegistration.objects.filter(
-            user=request.user,
-            event__is_active=True
-        ).select_related('event').values(
-            'event__title', 'event__description', 'event__event_date', 'event__event_time'
-        ))
+        # Get user-specific data (handle both authenticated and anonymous users)
+        if request.user.is_authenticated:
+            user_registered_events = list(EventRegistration.objects.filter(
+                user=request.user,
+                event__is_active=True
+            ).select_related('event').values(
+                'event__title', 'event__description', 'event__event_date', 'event__event_time'
+            ))
+        else:
+            user_registered_events = []
         
         # Build system prompt with campus data
         system_prompt = f"""
