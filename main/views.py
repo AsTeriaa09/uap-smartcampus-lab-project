@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
-from .models import MenuItem, BusRoute, Club, Event, Order, OrderItem, EventRegistration
+from .models import MenuItem, BusRoute, Club, Event, Order, OrderItem, EventRegistration, ToDo
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.views.decorators.csrf import csrf_exempt
@@ -87,11 +87,18 @@ def dashboard(request):
         event__is_active=True,
         event__event_date__gte=timezone.now().date()
     ).select_related('event', 'event__club').order_by('event__event_date', 'event__event_time')[:5]
-    
+
+    todos_all = ToDo.objects.all()
+    todos_assignments = todos_all.filter(status='assignment')
+    todos_exams = todos_all.filter(status='exam')
+
     return render(request, 'dashboard.html', {
         'active_page': 'dashboard',
         'page_title': 'Dashboard',
         'registered_events': registered_events,
+        'todos_all': todos_all,
+        'todos_assignments': todos_assignments,
+        'todos_exams': todos_exams,
     })
 
 

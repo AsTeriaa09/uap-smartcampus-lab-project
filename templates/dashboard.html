@@ -159,78 +159,69 @@
         <div id="todo-content">
             <!-- All Todos -->
             <div id="todos-all" class="todo-tab-content space-y-3">
-                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
+                {% for todo in todos_all %}
+                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 {% if todo.status == 'exam' %}border-secondary{% else %}border-primary{% endif %}">
                     <div>
-                        <h4 class="font-semibold text-gray-800">Data Structures Assignment</h4>
-                        <p class="text-sm text-gray-600">Complete binary tree implementation</p>
-                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">Assignment</span>
+                        <h4 class="font-semibold text-gray-800">{{ todo.title }}</h4>
+                        {% if todo.description %}
+                        <p class="text-sm text-gray-600">{{ todo.description }}</p>
+                        {% endif %}
+                        {% if todo.status == 'exam' %}
+                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">{{ todo.get_status_display }}</span>
+                        {% else %}
+                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">{{ todo.get_status_display }}</span>
+                        {% endif %}
                     </div>
-                    <span class="text-sm text-gray-500">Due: Apr 28</span>
+                    <span class="text-sm text-gray-500">Added: {{ todo.created_at|date:"M j" }}</span>
                 </div>
-                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-secondary">
-                    <div>
-                        <h4 class="font-semibold text-gray-800">Calculus Midterm</h4>
-                        <p class="text-sm text-gray-600">Chapters 5-8 coverage</p>
-                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">Exam</span>
-                    </div>
-                    <span class="text-sm text-gray-500">Due: May 2</span>
+                {% empty %}
+                <div class="text-center py-8 text-gray-600">
+                    <i class="fas fa-clipboard-list text-gray-300 text-4xl mb-3"></i>
+                    <p>No to-dos yet. Staff can add items in the <a href="{% url 'admin:main_todo_add' %}" class="text-primary hover:underline">admin site</a>.</p>
                 </div>
-                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
-                    <div>
-                        <h4 class="font-semibold text-gray-800">Web Development Project</h4>
-                        <p class="text-sm text-gray-600">Build a full-stack application</p>
-                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">Assignment</span>
-                    </div>
-                    <span class="text-sm text-gray-500">Due: May 5</span>
-                </div>
-                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-secondary">
-                    <div>
-                        <h4 class="font-semibold text-gray-800">Database Systems Final</h4>
-                        <p class="text-sm text-gray-600">SQL queries and normalization</p>
-                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">Exam</span>
-                    </div>
-                    <span class="text-sm text-gray-500">Due: May 10</span>
-                </div>
+                {% endfor %}
             </div>
 
             <!-- Assignments Only -->
             <div id="todos-assignments" class="todo-tab-content space-y-3 hidden">
+                {% for todo in todos_assignments %}
                 <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
                     <div>
-                        <h4 class="font-semibold text-gray-800">Data Structures Assignment</h4>
-                        <p class="text-sm text-gray-600">Complete binary tree implementation</p>
-                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">Assignment</span>
+                        <h4 class="font-semibold text-gray-800">{{ todo.title }}</h4>
+                        {% if todo.description %}
+                        <p class="text-sm text-gray-600">{{ todo.description }}</p>
+                        {% endif %}
+                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">{{ todo.get_status_display }}</span>
                     </div>
-                    <span class="text-sm text-gray-500">Due: Apr 28</span>
+                    <span class="text-sm text-gray-500">Added: {{ todo.created_at|date:"M j" }}</span>
                 </div>
-                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
-                    <div>
-                        <h4 class="font-semibold text-gray-800">Web Development Project</h4>
-                        <p class="text-sm text-gray-600">Build a full-stack application</p>
-                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">Assignment</span>
-                    </div>
-                    <span class="text-sm text-gray-500">Due: May 5</span>
+                {% empty %}
+                <div class="text-center py-8 text-gray-600">
+                    <i class="fas fa-clipboard-list text-gray-300 text-4xl mb-3"></i>
+                    <p>No assignments listed.</p>
                 </div>
+                {% endfor %}
             </div>
 
             <!-- Exams Only -->
             <div id="todos-exams" class="todo-tab-content space-y-3 hidden">
+                {% for todo in todos_exams %}
                 <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-secondary">
                     <div>
-                        <h4 class="font-semibold text-gray-800">Calculus Midterm</h4>
-                        <p class="text-sm text-gray-600">Chapters 5-8 coverage</p>
-                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">Exam</span>
+                        <h4 class="font-semibold text-gray-800">{{ todo.title }}</h4>
+                        {% if todo.description %}
+                        <p class="text-sm text-gray-600">{{ todo.description }}</p>
+                        {% endif %}
+                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">{{ todo.get_status_display }}</span>
                     </div>
-                    <span class="text-sm text-gray-500">Due: May 2</span>
+                    <span class="text-sm text-gray-500">Added: {{ todo.created_at|date:"M j" }}</span>
                 </div>
-                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-secondary">
-                    <div>
-                        <h4 class="font-semibold text-gray-800">Database Systems Final</h4>
-                        <p class="text-sm text-gray-600">SQL queries and normalization</p>
-                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">Exam</span>
-                    </div>
-                    <span class="text-sm text-gray-500">Due: May 10</span>
+                {% empty %}
+                <div class="text-center py-8 text-gray-600">
+                    <i class="fas fa-clipboard-list text-gray-300 text-4xl mb-3"></i>
+                    <p>No exams listed.</p>
                 </div>
+                {% endfor %}
             </div>
         </div>
     </div>

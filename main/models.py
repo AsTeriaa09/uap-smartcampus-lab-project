@@ -145,3 +145,29 @@ class OrderItem(models.Model):
     @property
     def subtotal(self):
         return self.quantity * self.price_at_time
+
+
+class ToDo(models.Model):
+    """Campus to-do items shown on the student dashboard (managed in Django admin)."""
+
+    STATUS_CHOICES = [
+        ('assignment', 'Assignment'),
+        ('exam', 'Exam'),
+    ]
+
+    title = models.CharField(max_length=300)
+    description = models.TextField(blank=True)
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='assignment',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'To Do'
+        verbose_name_plural = 'To Dos'
+
+    def __str__(self):
+        return self.title
