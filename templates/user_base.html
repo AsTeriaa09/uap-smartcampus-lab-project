@@ -1,116 +1,153 @@
-{% extends 'base.html' %}
-
-{% block body %}
+{% extends 'base.html' %} {% block body %}
 <div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
-        <!-- Logo -->
-        <div class="p-6 border-b border-gray-200">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                    <i class="fas fa-graduation-cap text-white text-xl"></i>
-                </div>
-                <div>
-                    <h1 class="text-xl font-bold text-primary">SmartCampus</h1>
-                    <p class="text-xs text-gray-500">UAP Portal</p>
-                </div>
-            </div>
+  <!-- Sidebar -->
+  <aside class="w-64 bg-white border-r border-gray-200 flex flex-col">
+    <!-- Logo -->
+    <div class="p-6 border-b border-gray-200">
+      <div class="flex items-center space-x-3">
+        <div
+          class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center"
+        >
+          <i class="fas fa-graduation-cap text-white text-xl"></i>
         </div>
-
-        <!-- Navigation -->
-        <nav class="flex-1 p-4 space-y-2">
-            <a href="{% url 'dashboard' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition {% if active_page == 'dashboard' %}active{% endif %}">
-                <i class="fas fa-home w-5"></i>
-                <span class="font-medium">Dashboard</span>
-            </a>
-            <a href="{% url 'cafeteria' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition {% if active_page == 'cafeteria' %}active{% endif %}">
-                <i class="fas fa-utensils w-5"></i>
-                <span class="font-medium">Cafeteria</span>
-            </a>
-            <a href="{% url 'transportation' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition {% if active_page == 'transportation' %}active{% endif %}">
-                <i class="fas fa-bus w-5"></i>
-                <span class="font-medium">Transportation</span>
-            </a>
-            <a href="{% url 'events' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition {% if active_page == 'events' %}active{% endif %}">
-                <i class="fas fa-calendar-alt w-5"></i>
-                <span class="font-medium">Events & Clubs</span>
-            </a>
-            <a href="{% url 'ai' %}" class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-gray-100 transition {% if active_page == 'ai' %}active{% endif %}">
-                <i class="fas fa-robot w-5"></i>
-                <span class="font-medium">SmartCampus AI</span>
-            </a>
-        </nav>
-    </aside>
-
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-        <!-- Header -->
-        <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <a href="{% url 'dashboard' %}" class="text-gray-600 hover:text-primary transition">
-                    <i class="fas fa-home text-xl"></i>
-                </a>
-                <span class="text-gray-300">/</span>
-                <h2 class="text-xl font-semibold text-primary">{{ page_title }}</h2>
-            </div>
-
-            <!-- Cart Icon -->
-            <a href="{% url 'cart_view' %}" class="relative text-gray-600 hover:text-primary transition mr-4">
-                <i class="fas fa-shopping-cart text-xl"></i>
-                <span id="cartBadge" class="{% if not cart_count %}hidden{% endif %} absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
-                    {{ cart_count }}
-                </span>
-            </a>
-
-            <!-- User Avatar Dropdown -->
-            <div class="relative">
-                <button onclick="toggleDropdown()" class="flex items-center space-x-3 focus:outline-none">
-                    <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold">
-                        {{ user.username|first|upper }}
-                    </div>
-                    <span class="text-gray-700 font-medium">{{ user.username }}</span>
-                    <i class="fas fa-chevron-down text-gray-500 text-sm"></i>
-                </button>
-                
-                <!-- Dropdown Menu -->
-                <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
-                    <a href="{% url 'logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition">
-                        <i class="fas fa-sign-out-alt mr-2"></i>Logout
-                    </a>
-                </div>
-            </div>
-        </header>
-
-        <!-- Page Content -->
-        <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
-            {% if messages %}
-            <div class="mb-4 space-y-2">
-                {% for message in messages %}
-                <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-500 text-white{% elif message.tags == 'success' %}bg-green-500 text-white{% else %}bg-gray-200 text-gray-800{% endif %}">
-                    {{ message }}
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            
-            {% block content %}{% endblock %}
-        </main>
+        <div>
+          <h1 class="text-xl font-bold text-primary">SmartCampus</h1>
+          <p class="text-xs text-gray-500">UAP Portal</p>
+        </div>
+      </div>
     </div>
+
+    <!-- Navigation -->
+    <nav class="flex-1 p-4 space-y-2">
+      <a
+        href="{% url 'dashboard' %}"
+        class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/90 transition {% if active_page == 'dashboard' %}active{% endif %}"
+      >
+        <i class="fas fa-home w-5"></i>
+        <span class="font-medium">Dashboard</span>
+      </a>
+      <a
+        href="{% url 'cafeteria' %}"
+        class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/90 transition {% if active_page == 'cafeteria' %}active{% endif %}"
+      >
+        <i class="fas fa-utensils w-5"></i>
+        <span class="font-medium">Cafeteria</span>
+      </a>
+      <a
+        href="{% url 'transportation' %}"
+        class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/90 transition {% if active_page == 'transportation' %}active{% endif %}"
+      >
+        <i class="fas fa-bus w-5"></i>
+        <span class="font-medium">Transportation</span>
+      </a>
+      <a
+        href="{% url 'events' %}"
+        class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/90 transition {% if active_page == 'events' %}active{% endif %}"
+      >
+        <i class="fas fa-calendar-alt w-5"></i>
+        <span class="font-medium">Events & Clubs</span>
+      </a>
+      <a
+        href="{% url 'ai' %}"
+        class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/90 transition {% if active_page == 'ai' %}active{% endif %}"
+      >
+        <i class="fas fa-robot w-5"></i>
+        <span class="font-medium">SmartCampus AI</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Header -->
+    <header
+      class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between"
+    >
+      <div class="flex items-center space-x-4">
+        <a
+          href="{% url 'dashboard' %}"
+          class="text-gray-600 hover:text-primary transition"
+        >
+          <i class="fas fa-home text-xl"></i>
+        </a>
+        <span class="text-gray-300">/</span>
+        <h2 class="text-xl font-semibold text-primary">{{ page_title }}</h2>
+      </div>
+
+      <!-- Cart Icon -->
+      <a
+        href="{% url 'cart_view' %}"
+        class="relative text-gray-600 hover:text-primary transition mr-4"
+      >
+        <i class="fas fa-shopping-cart text-xl"></i>
+        <span
+          id="cartBadge"
+          class="{% if not cart_count %}hidden{% endif %} absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center"
+        >
+          {{ cart_count }}
+        </span>
+      </a>
+
+      <!-- User Avatar Dropdown -->
+      <div class="relative">
+        <button
+          onclick="toggleDropdown()"
+          class="flex items-center space-x-3 focus:outline-none"
+        >
+          <div
+            class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold"
+          >
+            {{ user.username|first|upper }}
+          </div>
+          <span class="text-gray-700 font-medium">{{ user.username }}</span>
+          <i class="fas fa-chevron-down text-gray-500 text-sm"></i>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div
+          id="userDropdown"
+          class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+        >
+          <a
+            href="{% url 'logout' %}"
+            class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition"
+          >
+            <i class="fas fa-sign-out-alt mr-2"></i>Logout
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="flex-1 overflow-y-auto p-6 bg-gray-50">
+      {% if messages %}
+      <div class="mb-4 space-y-2">
+        {% for message in messages %}
+        <div
+          class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-500 text-white{% elif message.tags == 'success' %}bg-green-500 text-white{% else %}bg-gray-200 text-gray-800{% endif %}"
+        >
+          {{ message }}
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% block content %}{% endblock %}
+    </main>
+  </div>
 </div>
 
 <script>
-function toggleDropdown() {
-    const dropdown = document.getElementById('userDropdown');
-    dropdown.classList.toggle('hidden');
-}
+  function toggleDropdown() {
+    const dropdown = document.getElementById("userDropdown");
+    dropdown.classList.toggle("hidden");
+  }
 
-// Close dropdown when clicking outside
-document.addEventListener('click', function(event) {
-    const dropdown = document.getElementById('userDropdown');
-    const button = event.target.closest('button');
+  // Close dropdown when clicking outside
+  document.addEventListener("click", function (event) {
+    const dropdown = document.getElementById("userDropdown");
+    const button = event.target.closest("button");
     if (!button && !dropdown.contains(event.target)) {
-        dropdown.classList.add('hidden');
+      dropdown.classList.add("hidden");
     }
-});
+  });
 </script>
 {% endblock %}
