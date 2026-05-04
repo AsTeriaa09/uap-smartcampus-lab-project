@@ -1,0 +1,109 @@
+{% extends "assignments/_base.html" %}
+{% block assignments_inner %}
+<div class="d-flex justify-content-between flex-wrap align-items-center gap-2 mb-4">
+    <h1 class="h3 mb-0">Teaching dashboard</h1>
+    <div class="d-flex gap-2">
+        <a href="{% url 'assignments:course_add' %}" class="btn btn-sm btn-outline-primary">Add course</a>
+        <a href="{% url 'assignments:assignment_create' %}" class="btn btn-sm btn-primary">New assignment</a>
+        <a href="{% url 'assignments:course_list' %}" class="btn btn-sm btn-outline-secondary">Courses</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <span class="text-muted small">Total assignments</span>
+                <div class="fs-3 fw-semibold">{{ total_assignments }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <span class="text-muted small">Total submissions</span>
+                <div class="fs-3 fw-semibold">{{ total_submissions }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <span class="text-muted small">Late submissions</span>
+                <div class="fs-3 fw-semibold text-warning">{{ late_submissions }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <span class="text-muted small">Average marks</span>
+                <div class="fs-3 fw-semibold">{{ average_marks|floatformat:2|default:"—" }}</div>
+                <small class="text-muted">Across all graded work</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-secondary small mb-4">
+    <strong>{{ pending_grades }}</strong> submission(s) still need grading · <strong>{{ graded_count }}</strong> graded overall
+</div>
+
+<form method="get" class="row g-2 align-items-end mb-3">
+    <div class="col-md-4">
+        <label class="form-label small mb-0">Search</label>
+        <input name="q" class="form-control form-control-sm" value="{{ search_q }}" placeholder="Title or description">
+    </div>
+    <div class="col-md-3">
+        <label class="form-label small mb-0">Course</label>
+        <select name="course" class="form-select form-select-sm">
+            <option value="">Any</option>
+            {% for c in courses %}
+            <option value="{{ c.pk }}" {% if courses_filter == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.code }} — {{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-3">
+        <div class="form-check mt-4">
+            <input class="form-check-input" type="checkbox" name="mine" value="1" id="minechk" {% if mine_only %}checked{% endif %}>
+            <label class="form-check-label small" for="minechk">Only assignments I created</label>
+        </div>
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary btn-sm w-100 mt-4">Apply</button>
+    </div>
+</form>
+
+{% if assignments %}
+<div class="card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-striped table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>Title</th><th>Course</th><th>Due</th><th>Created</th></tr>
+            </thead>
+            <tbody>
+                {% for a in assignments %}
+                <tr>
+                    <td><a href="{% url 'assignments:assignment_detail' pk=a.pk %}">{{ a.title }}</a></td>
+                    <td>{{ a.course.code }}</td>
+                    <td>
+                        {{ a.due_date|date:"M j, Y H:i" }}
+                        {% if a.is_overdue %}<span class="badge text-bg-danger ms-1">Overdue</span>{% endif %}
+                    </td>
+                    <td class="small text-muted">{{ a.created_by.username }} · {{ a.created_at|date:"M j" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% include "assignments/_pagination.html" %}
+
+{% else %}
+<div class="alert alert-light border text-center py-5 shadow-sm">
+    <p class="text-muted mb-2">No assignments match your filters.</p>
+    <a href="{% url 'assignments:assignment_create' %}" class="btn btn-primary btn-sm">Create one</a>
+</div>
+{% endif %}
+{% endblock %}

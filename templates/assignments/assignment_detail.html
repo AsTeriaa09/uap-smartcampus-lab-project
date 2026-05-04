@@ -1,0 +1,100 @@
+{% extends "assignments/_base.html" %}
+{% block assignments_inner %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'assignments:course_list' %}">Courses</a></li>
+        <li class="breadcrumb-item"><a href="{% url 'assignments:assignment_list' course_id=assignment.course.pk %}">{{ assignment.course.code }}</a></li>
+        <li class="breadcrumb-item active">Assignment</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+    <div>
+        <h1 class="h3">{{ assignment.title }}</h1>
+        <p class="text-muted mb-1 small">Course {{ assignment.course.code }} · Posted by {{ assignment.created_by.username }}</p>
+        {% if assignment.is_overdue %}
+        <span class="badge text-bg-danger">Past due</span>
+        {% else %}
+        <span class="badge text-bg-success">Due {{ assignment.due_date|date:"M j, Y H:i" }}</span>
+        {% endif %}
+        {% if submission and submission.is_late %}
+        <span class="badge text-bg-warning text-dark ms-1">Submitted late</span>
+        {% endif %}
+    </div>
+    {% if user.is_staff %}
+    <a href="{% url 'assignments:assignment_create' %}?course={{ assignment.course.pk }}" class="btn btn-outline-primary btn-sm">Another assignment</a>
+    {% endif %}
+</div>
+
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="text-muted small">Total marks: <strong>{{ assignment.total_marks }}</strong></div>
+        <hr>
+        {% if assignment.description %}<div class="content">{{ assignment.description|linebreaks }}</div>{% else %}<p class="text-muted mb-0">No description.</p>{% endif %}
+    </div>
+</div>
+
+{% if not user.is_staff %}
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        {% if submission %}
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+            <div>
+                <strong>Your submission</strong>
+                {% if submission.grade %}
+                <span class="badge text-bg-secondary ms-1">Graded</span>
+                {% else %}
+                <span class="badge text-bg-warning text-dark ms-1">Awaiting grade</span>
+                {% endif %}
+                <div class="small text-muted mt-1">Uploaded {{ submission.submitted_at|date:"M j, Y H:i" }}</div>
+            </div>
+            {% if submission.file %}
+            <a href="{{ submission.file.url }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">Download file</a>
+            {% endif %}
+        </div>
+        {% if submission.grade %}
+        <hr>
+        <div><strong>Marks:</strong> {{ submission.grade.marks }} / {{ assignment.total_marks }}</div>
+        {% if submission.grade.feedback %}<div class="mt-2 small"><strong>Feedback:</strong> {{ submission.grade.feedback|linebreaks }}</div>{% endif %}
+        {% endif %}
+        {% else %}
+        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+            <p class="mb-0">You have not submitted this assignment yet.</p>
+            <a href="{% url 'assignments:submit_assignment' assignment_id=assignment.pk %}" class="btn btn-primary btn-sm">Submit work</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% if user.is_staff and submissions %}
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-white fw-semibold">Submissions</div>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead><tr><th>Student</th><th>Submitted</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+                {% for s in submissions %}
+                <tr>
+                    <td>{{ s.student.username }}</td>
+                    <td>{{ s.submitted_at|date:"M j, Y H:i" }}</td>
+                    <td>
+                        {% if s.is_late %}<span class="badge text-bg-warning text-dark">Late</span>{% else %}<span class="badge text-bg-secondary">On time</span>{% endif %}
+                        {% if s.grade %}<span class="badge text-bg-success ms-1">Graded {{ s.grade.marks }}</span>{% endif %}
+                    </td>
+                    <td class="text-end">
+                        {% if s.file %}<a class="btn btn-sm btn-outline-secondary" href="{{ s.file.url }}" target="_blank" rel="noopener">File</a>{% endif %}
+                        {% if not s.grade %}
+                        <a class="btn btn-sm btn-primary" href="{% url 'assignments:grade_submission' submission_id=s.pk %}">Grade</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% elif user.is_staff %}
+<div class="alert alert-secondary">No submissions yet.</div>
+{% endif %}
+{% endblock %}

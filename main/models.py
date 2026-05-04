@@ -171,3 +171,6 @@ class ToDo(models.Model):
 
     def __str__(self):
         return self.title
+
+
+from .assignment_models import Announcement, Assignment, Course, Grade, Submission  # noqa: E402, F401
