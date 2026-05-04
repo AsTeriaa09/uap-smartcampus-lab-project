@@ -578,22 +578,37 @@ def admin_logout(request):
     return redirect('admin_login')
 
 
+from django.utils import timezone
+
+
 @login_required
 @user_passes_test(lambda u: u.is_superuser, login_url='/uapadmin/login/')
 def admin_dashboard(request):
-    """Dashboard for UAP Admin Portal"""
+    """Dashboard for UAP Admin Portal with fully dynamic stats"""
+
+    # Get the current date for event filtering
+    today = timezone.now().date()
+
+    # Cafeteria Stats
     total_menu_items = MenuItem.objects.count()
     available_menu_items = MenuItem.objects.filter(is_available=True).count()
+
+    # Transportation Stats
     total_bus_routes = BusRoute.objects.count()
     active_bus_routes = BusRoute.objects.filter(is_active=True).count()
+
+    # Student Life Stats
     total_clubs = Club.objects.count()
     active_clubs = Club.objects.filter(is_active=True).count()
+
+    # Events Stats (Dynamic Date)
     total_events = Event.objects.count()
-    upcoming_events = Event.objects.filter(is_active=True, event_date__gte='2026-04-24').count()
+    upcoming_events = Event.objects.filter(is_active=True, event_date__gte=today).count()
+
+    # Orders Stats
     total_orders = Order.objects.count()
     confirmed_orders = Order.objects.filter(status='confirmed').count()
-    completed_orders = Order.objects.filter(status='completed').count()
-    
+
     context = {
         'active_page': 'dashboard',
         'page_title': 'Dashboard',
@@ -607,10 +622,8 @@ def admin_dashboard(request):
         'upcoming_events': upcoming_events,
         'total_orders': total_orders,
         'confirmed_orders': confirmed_orders,
-        'completed_orders': completed_orders,
     }
     return render(request, 'admin_portal/dashboard.html', context)
-
 
 # Menu Management
 @login_required
