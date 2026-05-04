@@ -1,12 +1,17 @@
+import os
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
 from .models import MenuItem, BusRoute, Club, Event, Order, OrderItem, EventRegistration
 from django.contrib.auth.models import User
 from django.db.models import Count
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+import requests
 
 
 # Helper function to check if user is admin/staff
@@ -287,6 +292,116 @@ def ai(request):
         'active_page': 'ai',
         'page_title': 'SmartCampus AI'
     })
+
+
+@csrf_exempt
+def ai_chat_api(request):
+    """
+    Django view to handle AI chat requests using Groq API
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST method is allowed'}, status=405)
+    
+    try:
+        # Parse JSON data
+        data = json.loads(request.body)
+        user_input = data.get('input', '').strip()
+        
+        # Validate input
+        if not user_input:
+            return JsonResponse({'error': 'Missing or invalid input in request body.'}, status=400)
+        
+        # Get Groq API key from environment
+        groq_api_key = os.getenv('GROQ_API_KEY')
+        if not groq_api_key:
+            return JsonResponse({'error': 'Groq API key not configured.'}, status=500)
+        
+        # Fetch campus data for context
+        menu_items = list(MenuItem.objects.filter(is_available=True).values('name', 'description', 'price', 'category'))[:5]
+        bus_routes = list(BusRoute.objects.filter(is_active=True).values('route_name', 'departure_point', 'destination', 'departure_time', 'arrival_time', 'status'))[:3]
+        clubs = list(Club.objects.filter(is_active=True).values('name', 'description', 'category', 'president'))[:3]
+        events = list(Event.objects.filter(is_active=True).values('title', 'description', 'event_date', 'event_time', 'location'))[:3]
+        
+        # Get user-specific data
+        user_registered_events = list(EventRegistration.objects.filter(
+            user=request.user,
+            event__is_active=True
+        ).select_related('event').values(
+            'event__title', 'event__description', 'event__event_date', 'event__event_time'
+        ))
+        
+        # Build system prompt with campus data
+        system_prompt = f"""
+You are an AI assistant for UAP SmartCampus, answering questions about campus services.
+
+Here's verified information about UAP SmartCampus:
+
+Menu Items (Cafeteria):
+{json.dumps(menu_items, indent=2) if menu_items else 'No menu items available'}
+
+Bus Routes (Transportation):
+{json.dumps(bus_routes, indent=2) if bus_routes else 'No bus routes available'}
+
+Clubs:
+{json.dumps(clubs, indent=2) if clubs else 'No clubs available'}
+
+Events:
+{json.dumps(events, indent=2) if events else 'No events available'}
+
+User's Registered Events:
+{json.dumps(user_registered_events, indent=2) if user_registered_events else 'User has not registered for any events'}
+
+Your task is to answer questions about campus services accurately and helpfully.
+- Be concise and direct in your answers
+- Use only the information provided above
+- If you don't know the answer, say so honestly
+- Focus on helping students navigate campus services
+- Keep responses professional and friendly
+"""
+
+        # Call Groq API
+        headers = {
+            'Authorization': f'Bearer {groq_api_key}',
+            'Content-Type': 'application/json'
+        }
+        
+        payload = {
+            'messages': [
+                {'role': 'system', 'content': system_prompt},
+                {'role': 'user', 'content': user_input}
+            ],
+            'model': 'llama-3.1-8b-instant',
+            'temperature': 0.7,
+            'max_tokens': 500,
+            'top_p': 0.8
+        }
+        
+        response = requests.post(
+            'https://api.groq.com/openai/v1/chat/completions',
+            headers=headers,
+            json=payload,
+            timeout=30
+        )
+        
+        if response.status_code == 200:
+            result = response.json()
+            ai_response = result['choices'][0]['message']['content']
+            return JsonResponse({'answer': ai_response})
+        else:
+            error_msg = f'Groq API error: {response.status_code} - {response.text}'
+            print(error_msg)
+            return JsonResponse({'error': 'Failed to get response from AI service.'}, status=500)
+            
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'Invalid JSON in request body.'}, status=400)
+    except requests.exceptions.Timeout:
+        return JsonResponse({'error': 'Request timeout. Please try again.'}, status=504)
+    except requests.exceptions.RequestException as e:
+        print(f'Groq API request error: {e}')
+        return JsonResponse({'error': 'Failed to connect to AI service.'}, status=500)
+    except Exception as e:
+        print(f'Unexpected error in AI chat API: {e}')
+        return JsonResponse({'error': 'An unexpected error occurred.'}, status=500)
 
 
 # ==========================================
