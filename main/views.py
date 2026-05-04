@@ -349,6 +349,12 @@ def ai_chat_api(request):
             ).select_related('event').values(
                 'event__title', 'event__description', 'event__event_date', 'event__event_time'
             ))
+            # Convert date/time fields to strings for JSON serialization
+            for ev in user_registered_events:
+                if 'event__event_date' in ev and ev['event__event_date'] is not None:
+                    ev['event__event_date'] = str(ev['event__event_date'])
+                if 'event__event_time' in ev and ev['event__event_time'] is not None:
+                    ev['event__event_time'] = str(ev['event__event_time'])
         else:
             user_registered_events = []
         
