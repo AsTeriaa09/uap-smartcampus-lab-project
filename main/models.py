@@ -167,4 +167,3 @@ class Todo(models.Model):
         return self.title
 
 
-from .assignment_models import Announcement, Assignment, Course, Grade, Submission
