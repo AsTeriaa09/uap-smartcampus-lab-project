@@ -48,30 +48,6 @@
         <span class="font-medium">Events & Clubs</span>
       </a>
       <a
-        href="{% url 'assignments:course_list' %}"
-        class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/95 hover:text-white transition {% if active_page == 'assignments' %}active{% endif %}"
-      >
-        <i class="fas fa-book w-5"></i>
-        <span class="font-medium">Assignments</span>
-      </a>
-      {% if user.is_staff %}
-      <a
-        href="{% url 'assignments:teacher_dashboard' %}"
-        class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/95 hover:text-white transition {% if active_page == 'assignments' %}active{% endif %}"
-      >
-        <i class="fas fa-chalkboard-teacher w-5"></i>
-        <span class="font-medium">Teaching</span>
-      </a>
-      {% else %}
-      <a
-        href="{% url 'assignments:student_dashboard' %}"
-        class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/95 hover:text-white transition {% if active_page == 'assignments' %}active{% endif %}"
-      >
-        <i class="fas fa-user-graduate w-5"></i>
-        <span class="font-medium">My coursework</span>
-      </a>
-      {% endif %}
-      <a
         href="{% url 'ai' %}"
         class="sidebar-link flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-700 hover:bg-primary/95  hover:text-white transition {% if active_page == 'ai' %}active{% endif %}"
       >

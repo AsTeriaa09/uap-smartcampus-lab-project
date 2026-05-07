@@ -1,11 +1,10 @@
 from django.contrib import admin
-from django.urls import include, path
+from django.urls import path
 from django.shortcuts import redirect
 from django.conf import settings
 from django.conf.urls.static import static
-from main.assignment_views import api_assignments_list
 from main.views import (
-    homepage, user_login, user_register, user_logout, 
+    homepage, user_login, user_register, user_logout,
     dashboard, cafeteria, transportation, events, ai,
     ai_chat_api,
     authority_login, authority_logout, authority_dashboard,
@@ -23,9 +22,7 @@ from main.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/assignments/', api_assignments_list, name='api_assignments_list'),
-    path('assignments/', include('main.urls')),
-    path('', lambda request: redirect('login')),  # Root URL redirects to login
+    path('', lambda request: redirect('login')),
     path('login/', user_login, name='login'),
     path('register/', user_register, name='register'),
     path('logout/', user_logout, name='logout'),
