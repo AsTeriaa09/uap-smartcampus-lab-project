@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .assignment_models import Announcement, Assignment, Course, Grade, Submission
-from .models import MenuItem, ToDo
+from .models import MenuItem, Todo
 
 
 @admin.register(MenuItem)
@@ -12,12 +12,12 @@ class MenuItemAdmin(admin.ModelAdmin):
     ordering = ['category', 'name']
 
 
-@admin.register(ToDo)
-class ToDoAdmin(admin.ModelAdmin):
-    list_display = ['title', 'status', 'created_at']
-    list_filter = ['status']
-    search_fields = ['title', 'description']
-    ordering = ['-created_at']
+@admin.register(Todo)
+class TodoAdmin(admin.ModelAdmin):
+    list_display = ['title', 'user', 'todo_type', 'due_date', 'is_completed', 'created_at']
+    list_filter = ['todo_type', 'is_completed']
+    search_fields = ['title', 'description', 'user__username']
+    ordering = ['due_date', 'created_at']
     readonly_fields = ['created_at']
 
 

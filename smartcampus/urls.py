@@ -17,7 +17,8 @@ from main.views import (
     admin_events, admin_event_add, admin_event_edit, admin_event_delete, admin_event_registrations,
     add_to_cart, update_cart_item, remove_from_cart, cart_view, confirm_order, order_now, my_orders,
     admin_orders, admin_order_detail, admin_order_status,
-    register_for_event, unregister_from_event, my_registered_events
+    register_for_event, unregister_from_event, my_registered_events,
+    todo_add, todo_edit, todo_delete, todo_toggle
 )
 
 urlpatterns = [
@@ -79,6 +80,11 @@ urlpatterns = [
     path('cafeteria/order/confirm/', confirm_order, name='confirm_order'),
     path('cafeteria/order-now/<int:item_id>/', order_now, name='order_now'),
     path('orders/', my_orders, name='my_orders'),
+
+    path('todos/add/', todo_add, name='todo_add'),
+    path('todos/<int:todo_id>/edit/', todo_edit, name='todo_edit'),
+    path('todos/<int:todo_id>/delete/', todo_delete, name='todo_delete'),
+    path('todos/<int:todo_id>/toggle/', todo_toggle, name='todo_toggle'),
     
     # Admin Orders
     path('uapadmin/orders/', admin_orders, name='admin_orders'),
