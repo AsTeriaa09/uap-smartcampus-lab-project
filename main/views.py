@@ -6,7 +6,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
 from django.db.models import Q
-from .models import MenuItem, BusRoute, Club, Event, Order, OrderItem, EventRegistration, ToDo
+from .models import MenuItem, BusRoute, Club, Event, Order, OrderItem, EventRegistration, Todo
 from django.contrib.auth.models import User
 from django.db.models import Count
 from django.views.decorators.csrf import csrf_exempt
@@ -14,7 +14,7 @@ from django.utils.decorators import method_decorator
 import requests
 
 
-# Helper function to check if user is admin/staff
+#  function to check if user is admin or staff
 def is_admin(user):
     return user.is_authenticated and (user.is_staff or user.is_superuser)
 
@@ -82,23 +82,25 @@ def homepage(request):
 @login_required
 def dashboard(request):
     from django.utils import timezone
+    today = timezone.now().date()
+
     registered_events = EventRegistration.objects.filter(
         user=request.user,
         event__is_active=True,
-        event__event_date__gte=timezone.now().date()
+        event__event_date__gte=today
     ).select_related('event', 'event__club').order_by('event__event_date', 'event__event_time')[:5]
 
-    todos_all = ToDo.objects.all()
-    todos_assignments = todos_all.filter(status='assignment')
-    todos_exams = todos_all.filter(status='exam')
+    menu_count = MenuItem.objects.filter(is_available=True).count()
+    events_today_count = Event.objects.filter(is_active=True, event_date=today).count()
+    todos = Todo.objects.filter(user=request.user)
 
     return render(request, 'dashboard.html', {
         'active_page': 'dashboard',
         'page_title': 'Dashboard',
         'registered_events': registered_events,
-        'todos_all': todos_all,
-        'todos_assignments': todos_assignments,
-        'todos_exams': todos_exams,
+        'menu_count': menu_count,
+        'events_today_count': events_today_count,
+        'todos': todos,
     })
 
 
@@ -119,7 +121,6 @@ def transportation(request):
     
     bus_routes = BusRoute.objects.filter(is_active=True).order_by('departure_time')
     
-    # Prepare bus routes data for JavaScript
     bus_routes_data = []
     for route in bus_routes:
         bus_routes_data.append({
@@ -151,13 +152,11 @@ def events(request):
     clubs = Club.objects.filter(is_active=True)
     all_events = Event.objects.filter(is_active=True).order_by('event_date', 'event_time')
     
-    # Get user's registered event IDs
     user_registered_event_ids = set(
         EventRegistration.objects.filter(user=request.user)
         .values_list('event_id', flat=True)
     )
     
-    # Prepare clubs data for JavaScript
     clubs_data = []
     for club in clubs:
         clubs_data.append({
@@ -172,7 +171,7 @@ def events(request):
             'is_active': club.is_active,
         })
     
-    # Prepare events data for JavaScript
+
     events_data = []
     for event in all_events:
         events_data.append({
@@ -218,13 +217,11 @@ def register_for_event(request, event_id):
             'registration_count': event.registration_count
         })
     
-    # Get registration details from request
     full_name = request.POST.get('full_name', '').strip()
     registration_number = request.POST.get('registration_number', '').strip()
     edu_email = request.POST.get('edu_email', '').strip()
     department = request.POST.get('department', '').strip()
     
-    # Validate required fields
     if not full_name:
         return JsonResponse({'success': False, 'message': 'Full name is required'})
     if not registration_number:
@@ -314,25 +311,24 @@ def ai_chat_api(request):
         data = json.loads(request.body)
         user_input = data.get('input', '').strip()
         
-        # Validate input
+
         if not user_input:
             return JsonResponse({'error': 'Missing or invalid input in request body.'}, status=400)
         
-        # Get Groq API key from environment
         groq_api_key = os.getenv('GROQ_API_KEY')
         print(f'GROQ_API_KEY loaded: {groq_api_key is not None}')
         if not groq_api_key:
             return JsonResponse({'error': 'Groq API key not configured.'}, status=500)
         
-        # Fetch campus data for context
+
         menu_items = list(MenuItem.objects.filter(is_available=True).values('name', 'description', 'price', 'category'))[:5]
-        # Convert Decimal fields to strings for JSON serialization
+
         for item in menu_items:
             if 'price' in item and hasattr(item['price'], 'quantize'):
                 item['price'] = float(item['price'])
         
         bus_routes = list(BusRoute.objects.filter(is_active=True).values('route_name', 'departure_point', 'destination', 'departure_time', 'arrival_time', 'status'))[:3]
-        # Convert time fields to strings for JSON serialization
+
         for route in bus_routes:
             if 'departure_time' in route and hasattr(route['departure_time'], 'strftime'):
                 route['departure_time'] = route['departure_time'].strftime('%H:%M')
@@ -341,14 +337,14 @@ def ai_chat_api(request):
         
         clubs = list(Club.objects.filter(is_active=True).values('name', 'description', 'category', 'president'))[:3]
         events = list(Event.objects.filter(is_active=True).values('title', 'description', 'event_date', 'event_time', 'location'))[:3]
-        # Convert date/time fields to strings for JSON serialization
+
         for event in events:
             if 'event_date' in event and hasattr(event['event_date'], 'isoformat'):
                 event['event_date'] = event['event_date'].isoformat()
             if 'event_time' in event and hasattr(event['event_time'], 'strftime'):
                 event['event_time'] = event['event_time'].strftime('%H:%M:%S')
         
-        # Get user-specific data (handle both authenticated and anonymous users)
+   
         if request.user.is_authenticated:
             user_registered_events = list(EventRegistration.objects.filter(
                 user=request.user,
@@ -356,7 +352,7 @@ def ai_chat_api(request):
             ).select_related('event').values(
                 'event__title', 'event__description', 'event__event_date', 'event__event_time'
             ))
-            # Convert date/time fields to strings for JSON serialization
+          
             for ev in user_registered_events:
                 if 'event__event_date' in ev and ev['event__event_date'] is not None:
                     ev['event__event_date'] = str(ev['event__event_date'])
@@ -365,7 +361,7 @@ def ai_chat_api(request):
         else:
             user_registered_events = []
         
-        # Build system prompt with campus data
+
         system_prompt = f"""
 You are an AI assistant for UAP SmartCampus, answering questions about campus services.
 
@@ -394,7 +390,7 @@ Your task is to answer questions about campus services accurately and helpfully.
 - Keep responses professional and friendly
 """
 
-        # Call Groq API
+
         headers = {
             'Authorization': f'Bearer {groq_api_key}',
             'Content-Type': 'application/json'
@@ -439,10 +435,8 @@ Your task is to answer questions about campus services accurately and helpfully.
         return JsonResponse({'error': 'An unexpected error occurred.'}, status=500)
 
 
-# ==========================================
-# Authority Management Portal Views
-# ==========================================
 
+# Authority Management Portal Views
 def authority_login(request):
     """Login page for Authority Management Portal"""
     if request.user.is_authenticated and is_admin(request.user):
@@ -557,10 +551,8 @@ def authority_menu_delete(request, item_id):
     return redirect('authority_menu_list')
 
 
-# ==========================================
-# UAP Admin Portal Views (/uapadmin)
-# ==========================================
 
+# UAP Admin Portal Views (/uapadmin)
 def admin_login(request):
     """Login page for UAP Admin Portal - Superuser only"""
     if request.user.is_authenticated and request.user.is_superuser:
@@ -1005,10 +997,8 @@ def admin_event_delete(request, event_id):
     return redirect('admin_events')
 
 
-# ==========================================
-# User Cart & Order Views
-# ==========================================
 
+# User Cart & Order Views
 @login_required
 def add_to_cart(request, item_id):
     """Add item to session cart via AJAX"""
@@ -1175,10 +1165,8 @@ def my_orders(request):
     })
 
 
-# ==========================================
-# Admin Order Management Views
-# ==========================================
 
+# Admin Order Management Views
 @login_required
 @user_passes_test(lambda u: u.is_superuser, login_url='/uapadmin/login/')
 def admin_orders(request):
@@ -1236,3 +1224,90 @@ def admin_order_status(request, order_id):
             messages.error(request, 'Invalid status')
     
     return redirect('admin_order_detail', order_id=order.id)
+
+
+@login_required
+def todo_add(request):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid method'})
+    title = request.POST.get('title', '').strip()
+    description = request.POST.get('description', '').strip()
+    todo_type = request.POST.get('todo_type', 'assignment')
+    due_date = request.POST.get('due_date') or None
+    if not title:
+        return JsonResponse({'success': False, 'message': 'Title is required'})
+    todo = Todo.objects.create(
+        user=request.user,
+        title=title,
+        description=description,
+        todo_type=todo_type,
+        due_date=due_date
+    )
+    from datetime import date
+    due_display = None
+    if todo.due_date:
+        if isinstance(todo.due_date, str):
+            due_display = date.fromisoformat(todo.due_date).strftime('%b %d')
+        else:
+            due_display = todo.due_date.strftime('%b %d')
+    return JsonResponse({
+        'success': True,
+        'todo': {
+            'id': todo.id,
+            'title': todo.title,
+            'description': todo.description,
+            'todo_type': todo.todo_type,
+            'due_date': due_display,
+        }
+    })
+
+
+@login_required
+def todo_edit(request, todo_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid method'})
+    todo = get_object_or_404(Todo, id=todo_id, user=request.user)
+    title = request.POST.get('title', '').strip()
+    if not title:
+        return JsonResponse({'success': False, 'message': 'Title is required'})
+    todo.title = title
+    todo.description = request.POST.get('description', '').strip()
+    todo.todo_type = request.POST.get('todo_type', todo.todo_type)
+    todo.due_date = request.POST.get('due_date') or None
+    todo.save()
+    from datetime import date
+    due_display = None
+    if todo.due_date:
+        if isinstance(todo.due_date, str):
+            due_display = date.fromisoformat(todo.due_date).strftime('%b %d')
+        else:
+            due_display = todo.due_date.strftime('%b %d')
+    return JsonResponse({
+        'success': True,
+        'todo': {
+            'id': todo.id,
+            'title': todo.title,
+            'description': todo.description,
+            'todo_type': todo.todo_type,
+            'due_date': due_display,
+        }
+    })
+
+
+@login_required
+def todo_delete(request, todo_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid method'})
+    todo = get_object_or_404(Todo, id=todo_id, user=request.user)
+    todo.delete()
+    return JsonResponse({'success': True})
+
+
+@login_required
+def todo_toggle(request, todo_id):
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'Invalid method'})
+    todo = get_object_or_404(Todo, id=todo_id, user=request.user)
+    todo.is_completed = not todo.is_completed
+    todo.save()
+    return JsonResponse({'success': True, 'is_completed': todo.is_completed})

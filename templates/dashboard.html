@@ -5,13 +5,9 @@
 
 {% block content %}
 <div class="space-y-6">
-    <!-- Welcome Section with User Profile -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
-                <!-- <div class="w-16 h-16 bg-primary rounded-full flex items-center justify-center text-white text-2xl font-bold">
-                    {{ user.username|first|upper }}
-                </div> -->
                 <div class="pl-8">
                     <h2 class="text-2xl font-bold text-primary">Welcome back, {{ user.username }}! 👋</h2>
                     <p class="text-gray-600">Here's what's happening on your campus today.</p>
@@ -23,13 +19,12 @@
         </div>
     </div>
 
-    <!-- Quick Stats - Colorful 4-grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="bg-[#f1cc5b] rounded-lg shadow-sm border border-gray-200 p-6 text-white">
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-white/80 mb-1">Today's Menu</p>
-                    <p class="text-2xl font-bold">12</p>
+                    <p class="text-2xl font-bold">{{ menu_count }}</p>
                 </div>
                 <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
                     <i class="fas fa-utensils text-white text-xl"></i>
@@ -41,7 +36,7 @@
             <div class="flex items-center justify-between">
                 <div>
                     <p class="text-sm text-white/80 mb-1">Events Today</p>
-                    <p class="text-2xl font-bold">3</p>
+                    <p class="text-2xl font-bold">{{ events_today_count }}</p>
                 </div>
                 <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
                     <i class="fas fa-calendar text-white text-xl"></i>
@@ -74,7 +69,6 @@
         </div>
     </div>
 
-    <!-- Quick Actions -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <h3 class="text-xl font-bold text-primary mb-4">Quick Actions</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -97,7 +91,6 @@
         </div>
     </div>
 
-    <!-- My Registered Events -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
         <div class="flex items-center justify-between mb-4">
             <h3 class="text-xl font-bold text-primary">My Registered Events</h3>
@@ -138,115 +131,368 @@
         {% endif %}
     </div>
 
-    <!-- Todo Section -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h3 class="text-xl font-bold text-primary mb-4">My Todos</h3>
-        
-        <!-- Tabs -->
-        <div class="flex space-x-4 mb-6 border-b border-gray-200">
-            <button onclick="switchTab('all')" id="tab-all" class="tab-btn px-4 py-2 font-medium text-primary border-b-2 border-primary transition">
-                All
-            </button>
-            <button onclick="switchTab('assignments')" id="tab-assignments" class="tab-btn px-4 py-2 font-medium text-gray-600 hover:text-primary transition">
-                Assignments
-            </button>
-            <button onclick="switchTab('exams')" id="tab-exams" class="tab-btn px-4 py-2 font-medium text-gray-600 hover:text-primary transition">
-                Exams
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-xl font-bold text-primary">My Todos</h3>
+            <button onclick="openAddTodoModal()" class="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm">
+                <i class="fas fa-plus"></i>
+                <span>Add Todo</span>
             </button>
         </div>
 
-        <!-- Todo Content -->
-        <div id="todo-content">
-            <!-- All Todos -->
-            <div id="todos-all" class="todo-tab-content space-y-3">
-                {% for todo in todos_all %}
-                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 {% if todo.status == 'exam' %}border-secondary{% else %}border-primary{% endif %}">
-                    <div>
-                        <h4 class="font-semibold text-gray-800">{{ todo.title }}</h4>
-                        {% if todo.description %}
-                        <p class="text-sm text-gray-600">{{ todo.description }}</p>
-                        {% endif %}
-                        {% if todo.status == 'exam' %}
-                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">{{ todo.get_status_display }}</span>
-                        {% else %}
-                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">{{ todo.get_status_display }}</span>
-                        {% endif %}
-                    </div>
-                    <span class="text-sm text-gray-500">Added: {{ todo.created_at|date:"M j" }}</span>
-                </div>
-                {% empty %}
-                <div class="text-center py-8 text-gray-600">
-                    <i class="fas fa-clipboard-list text-gray-300 text-4xl mb-3"></i>
-                    <p>No to-dos yet. Staff can add items in the <a href="{% url 'admin:main_todo_add' %}" class="text-primary hover:underline">admin site</a>.</p>
-                </div>
-                {% endfor %}
-            </div>
+        <div class="flex space-x-4 mb-6 border-b border-gray-200">
+            <button onclick="switchTab('all')" id="tab-all" class="tab-btn px-4 py-2 font-medium text-primary border-b-2 border-primary transition">All</button>
+            <button onclick="switchTab('assignment')" id="tab-assignment" class="tab-btn px-4 py-2 font-medium text-gray-600 hover:text-primary transition">Assignments</button>
+            <button onclick="switchTab('exam')" id="tab-exam" class="tab-btn px-4 py-2 font-medium text-gray-600 hover:text-primary transition">Exams</button>
+        </div>
 
-            <!-- Assignments Only -->
-            <div id="todos-assignments" class="todo-tab-content space-y-3 hidden">
-                {% for todo in todos_assignments %}
-                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
+        <div id="todo-list" class="space-y-3">
+            {% for todo in todos %}
+            <div class="todo-item flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 {% if todo.todo_type == 'exam' %}border-secondary{% else %}border-primary{% endif %} {% if todo.is_completed %}opacity-60{% endif %}" data-id="{{ todo.id }}" data-type="{{ todo.todo_type }}">
+                <div class="flex items-start space-x-3">
+                    <input type="checkbox" onchange="toggleTodo({{ todo.id }}, this)" class="mt-1 w-4 h-4 accent-primary cursor-pointer" {% if todo.is_completed %}checked="checked"{% endif %}>
                     <div>
-                        <h4 class="font-semibold text-gray-800">{{ todo.title }}</h4>
-                        {% if todo.description %}
-                        <p class="text-sm text-gray-600">{{ todo.description }}</p>
-                        {% endif %}
-                        <span class="inline-block mt-2 px-3 py-1 bg-primary text-white text-xs rounded-full">{{ todo.get_status_display }}</span>
+                        <h4 class="todo-title font-semibold text-gray-800 {% if todo.is_completed %}line-through text-gray-400{% endif %}">{{ todo.title }}</h4>
+                        {% if todo.description %}<p class="todo-desc text-sm text-gray-600">{{ todo.description }}</p>{% endif %}
+                        <span class="inline-block mt-2 px-3 py-1 {% if todo.todo_type == 'exam' %}bg-secondary{% else %}bg-primary{% endif %} text-white text-xs rounded-full">{{ todo.get_todo_type_display }}</span>
                     </div>
-                    <span class="text-sm text-gray-500">Added: {{ todo.created_at|date:"M j" }}</span>
                 </div>
-                {% empty %}
-                <div class="text-center py-8 text-gray-600">
-                    <i class="fas fa-clipboard-list text-gray-300 text-4xl mb-3"></i>
-                    <p>No assignments listed.</p>
+                <div class="flex items-center space-x-3">
+                    {% if todo.due_date %}<span class="todo-due text-sm text-gray-500">Due: {{ todo.due_date|date:"M d" }}</span>{% endif %}
+                    <button class="edit-btn text-green-400 hover:text-green-600 transition"
+                            data-id="{{ todo.id }}"
+                            data-title="{{ todo.title|escapejs }}"
+                            data-description="{{ todo.description|escapejs }}"
+                            data-type="{{ todo.todo_type }}"
+                            data-due="{% if todo.due_date %}{{ todo.due_date|date:'Y-m-d' }}{% endif %}">
+                        <i class="fas fa-pen text-sm"></i>
+                    </button>
+                    <button class="delete-btn text-red-400 hover:text-red-600 transition" data-id="{{ todo.id }}">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
                 </div>
-                {% endfor %}
             </div>
-
-            <!-- Exams Only -->
-            <div id="todos-exams" class="todo-tab-content space-y-3 hidden">
-                {% for todo in todos_exams %}
-                <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-secondary">
-                    <div>
-                        <h4 class="font-semibold text-gray-800">{{ todo.title }}</h4>
-                        {% if todo.description %}
-                        <p class="text-sm text-gray-600">{{ todo.description }}</p>
-                        {% endif %}
-                        <span class="inline-block mt-2 px-3 py-1 bg-secondary text-white text-xs rounded-full">{{ todo.get_status_display }}</span>
-                    </div>
-                    <span class="text-sm text-gray-500">Added: {{ todo.created_at|date:"M j" }}</span>
-                </div>
-                {% empty %}
-                <div class="text-center py-8 text-gray-600">
-                    <i class="fas fa-clipboard-list text-gray-300 text-4xl mb-3"></i>
-                    <p>No exams listed.</p>
-                </div>
-                {% endfor %}
+            {% empty %}
+            <div id="empty-state" class="text-center py-8">
+                <i class="fas fa-check-circle text-gray-300 text-4xl mb-3"></i>
+                <p class="text-gray-600">No todos yet. Add one to get started!</p>
             </div>
+            {% endfor %}
         </div>
     </div>
 </div>
 
+<div id="add-todo-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-primary">Add New Todo</h3>
+            <button onclick="closeAddTodoModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <form id="add-todo-form" onsubmit="submitTodo(event)">
+            {% csrf_token %}
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
+                    <input type="text" name="title" id="todo-title" required
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                           placeholder="e.g. Data Structures Assignment">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea name="description" id="todo-description" rows="2"
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"
+                              placeholder="Optional details..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                        <select name="todo_type" id="todo-type"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                            <option value="assignment">Assignment</option>
+                            <option value="exam">Exam</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                        <input type="date" name="due_date" id="todo-due-date"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-3 mt-6">
+                <button type="button" onclick="closeAddTodoModal()"
+                        class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">Cancel</button>
+                <button type="submit"
+                        class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm">Add Todo</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="edit-todo-modal" class="fixed inset-0 bg-black/50 z-50 hidden items-center justify-center">
+    <div class="bg-white rounded-xl shadow-xl w-full max-w-md mx-4 p-6">
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-primary">Edit Todo</h3>
+            <button onclick="closeEditTodoModal()" class="text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        <form id="edit-todo-form" onsubmit="submitEditTodo(event)">
+            {% csrf_token %}
+            <input type="hidden" id="edit-todo-id">
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
+                    <input type="text" name="title" id="edit-todo-title" required
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                    <textarea name="description" id="edit-todo-description" rows="2"
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                        <select name="todo_type" id="edit-todo-type"
+                                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                            <option value="assignment">Assignment</option>
+                            <option value="exam">Exam</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
+                        <input type="date" name="due_date" id="edit-todo-due-date"
+                               class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary">
+                    </div>
+                </div>
+            </div>
+            <div class="flex space-x-3 mt-6">
+                <button type="button" onclick="closeEditTodoModal()"
+                        class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition text-sm">Cancel</button>
+                <button type="submit"
+                        class="flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+const CSRF_TOKEN = '{{ csrf_token }}';
+let activeTab = 'all';
+
 function switchTab(tabName) {
-    // Hide all tab content
-    document.querySelectorAll('.todo-tab-content').forEach(el => {
-        el.classList.add('hidden');
-    });
-    
-    // Remove active state from all tabs
+    activeTab = tabName;
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.classList.remove('text-primary', 'border-b-2', 'border-primary');
         btn.classList.add('text-gray-600');
     });
-    
-    // Show selected tab content
-    document.getElementById('todos-' + tabName).classList.remove('hidden');
-    
-    // Add active state to selected tab
     const activeBtn = document.getElementById('tab-' + tabName);
     activeBtn.classList.remove('text-gray-600');
     activeBtn.classList.add('text-primary', 'border-b-2', 'border-primary');
+    document.querySelectorAll('.todo-item').forEach(item => {
+        if (tabName === 'all' || item.dataset.type === tabName) {
+            item.classList.remove('hidden');
+        } else {
+            item.classList.add('hidden');
+        }
+    });
 }
+
+function openAddTodoModal() {
+    const modal = document.getElementById('add-todo-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    document.getElementById('todo-title').focus();
+}
+
+function closeAddTodoModal() {
+    const modal = document.getElementById('add-todo-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+    document.getElementById('add-todo-form').reset();
+}
+
+function openEditTodoModal(id, title, description, type, dueDate) {
+    document.getElementById('edit-todo-id').value = id;
+    document.getElementById('edit-todo-title').value = title;
+    document.getElementById('edit-todo-description').value = description;
+    document.getElementById('edit-todo-type').value = type;
+    document.getElementById('edit-todo-due-date').value = dueDate;
+    const modal = document.getElementById('edit-todo-modal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+}
+
+function closeEditTodoModal() {
+    const modal = document.getElementById('edit-todo-modal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
+
+function submitTodo(e) {
+    e.preventDefault();
+    const form = document.getElementById('add-todo-form');
+    const data = new FormData(form);
+    fetch('{% url "todo_add" %}', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF_TOKEN },
+        body: data
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            const todo = res.todo;
+            const isExam = todo.todo_type === 'exam';
+            const borderColor = isExam ? 'border-secondary' : 'border-primary';
+            const badgeColor = isExam ? 'bg-secondary' : 'bg-primary';
+            const typeLabel = isExam ? 'Exam' : 'Assignment';
+            const emptyState = document.getElementById('empty-state');
+            if (emptyState) emptyState.remove();
+            const html = `<div class="todo-item flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 ${borderColor}" data-id="${todo.id}" data-type="${todo.todo_type}">
+                <div class="flex items-start space-x-3">
+                    <input type="checkbox" onchange="toggleTodo(${todo.id}, this)" class="mt-1 w-4 h-4 accent-primary cursor-pointer">
+                    <div>
+                        <h4 class="todo-title font-semibold text-gray-800">${todo.title}</h4>
+                        ${todo.description ? `<p class="todo-desc text-sm text-gray-600">${todo.description}</p>` : ''}
+                        <span class="inline-block mt-2 px-3 py-1 ${badgeColor} text-white text-xs rounded-full">${typeLabel}</span>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    ${todo.due_date ? `<span class="todo-due text-sm text-gray-500">Due: ${todo.due_date}</span>` : ''}
+                    <button class="edit-btn text-green-400 hover:text-green-600 transition"
+                            data-id="${todo.id}"
+                            data-title="${todo.title}"
+                            data-description="${todo.description || ''}"
+                            data-type="${todo.todo_type}"
+                            data-due="">
+                        <i class="fas fa-pen text-sm"></i>
+                    </button>
+                    <button class="delete-btn text-red-400 hover:text-red-600 transition" data-id="${todo.id}">
+                        <i class="fas fa-trash text-sm"></i>
+                    </button>
+                </div>
+            </div>`;
+            document.getElementById('todo-list').insertAdjacentHTML('beforeend', html);
+            if (activeTab !== 'all' && todo.todo_type !== activeTab) {
+                document.querySelector(`.todo-item[data-id="${todo.id}"]`).classList.add('hidden');
+            }
+            closeAddTodoModal();
+        }
+    });
+}
+
+function submitEditTodo(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-todo-id').value;
+    const data = new FormData(document.getElementById('edit-todo-form'));
+    fetch(`/todos/${id}/edit/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF_TOKEN },
+        body: data
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            const todo = res.todo;
+            const el = document.querySelector(`.todo-item[data-id="${id}"]`);
+            const isExam = todo.todo_type === 'exam';
+            el.dataset.type = todo.todo_type;
+            el.className = el.className.replace(/border-(primary|secondary)/, isExam ? 'border-secondary' : 'border-primary');
+            el.querySelector('.todo-title').textContent = todo.title;
+            const descEl = el.querySelector('.todo-desc');
+            if (todo.description) {
+                if (descEl) {
+                    descEl.textContent = todo.description;
+                } else {
+                    el.querySelector('.todo-title').insertAdjacentHTML('afterend', `<p class="todo-desc text-sm text-gray-600">${todo.description}</p>`);
+                }
+            } else if (descEl) {
+                descEl.remove();
+            }
+            const dueEl = el.querySelector('.todo-due');
+            if (todo.due_date) {
+                if (dueEl) {
+                    dueEl.textContent = `Due: ${todo.due_date}`;
+                } else {
+                    el.querySelector('.flex.items-center.space-x-3').insertAdjacentHTML('afterbegin', `<span class="todo-due text-sm text-gray-500">Due: ${todo.due_date}</span>`);
+                }
+            } else if (dueEl) {
+                dueEl.remove();
+            }
+            const badge = el.querySelector('span.rounded-full');
+            badge.className = `inline-block mt-2 px-3 py-1 ${isExam ? 'bg-secondary' : 'bg-primary'} text-white text-xs rounded-full`;
+            badge.textContent = isExam ? 'Exam' : 'Assignment';
+            if (activeTab !== 'all' && todo.todo_type !== activeTab) {
+                el.classList.add('hidden');
+            } else {
+                el.classList.remove('hidden');
+            }
+            closeEditTodoModal();
+        }
+    });
+}
+
+function deleteTodo(id) {
+    fetch(`/todos/${id}/delete/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF_TOKEN }
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            const el = document.querySelector(`.todo-item[data-id="${id}"]`);
+            if (el) el.remove();
+            if (!document.querySelector('.todo-item')) {
+                document.getElementById('todo-list').innerHTML = `<div id="empty-state" class="text-center py-8">
+                    <i class="fas fa-check-circle text-gray-300 text-4xl mb-3"></i>
+                    <p class="text-gray-600">No todos yet. Add one to get started!</p>
+                </div>`;
+            }
+        }
+    });
+}
+
+function toggleTodo(id, checkbox) {
+    fetch(`/todos/${id}/toggle/`, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF_TOKEN }
+    })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            const item = checkbox.closest('.todo-item');
+            const titleEl = item.querySelector('.todo-title');
+            if (res.is_completed) {
+                titleEl.classList.add('line-through', 'text-gray-400');
+                item.classList.add('opacity-60');
+            } else {
+                titleEl.classList.remove('line-through', 'text-gray-400');
+                item.classList.remove('opacity-60');
+            }
+        }
+    });
+}
+
+document.getElementById('add-todo-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeAddTodoModal();
+});
+document.getElementById('edit-todo-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeEditTodoModal();
+});
+
+document.getElementById('todo-list').addEventListener('click', function(e) {
+    const editBtn = e.target.closest('.edit-btn');
+    const deleteBtn = e.target.closest('.delete-btn');
+    if (editBtn) {
+        const d = editBtn.dataset;
+        openEditTodoModal(d.id, d.title, d.description, d.type, d.due);
+    }
+    if (deleteBtn) {
+        deleteTodo(deleteBtn.dataset.id);
+    }
+});
 </script>
 {% endblock %}
