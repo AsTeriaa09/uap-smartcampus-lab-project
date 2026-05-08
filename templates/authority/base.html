@@ -6,14 +6,28 @@
     <title>{% block title %}Authority Portal{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#2f5850', secondary: '#1f514f', accent: '#4b7474' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'] }
+                }
+            }
+        }
+    </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
-        .gradient-bg { background: linear-gradient(135deg, #2f5850 0%, #1f514f 50%, #4b7474 100%); }
+        .gradient-bg { background: linear-gradient(135deg, #1a3a34 0%, #2f5850 50%, #3d6b62 100%); }
+        input:focus, select:focus, textarea:focus { box-shadow: 0 0 0 3px rgba(47,88,80,0.15); }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #2f5850; border-radius: 3px; }
     </style>
     {% block extra_style %}{% endblock %}
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 antialiased">
     {% block body %}{% endblock %}
 </body>
 </html>

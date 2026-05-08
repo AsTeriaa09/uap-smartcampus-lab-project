@@ -3,104 +3,77 @@
 {% block title %}UAP SmartCampus - Welcome{% endblock %}
 
 {% block body %}
-<div class="min-h-screen gradient-bg flex items-center justify-center px-4">
-    <div class="max-w-5xl w-full">
-        <!-- Header -->
-        <div class="text-center mb-12">
-            <div class="inline-flex items-center justify-center w-24 h-24 bg-white rounded-2xl mb-6 shadow-lg">
-                <i class="fas fa-graduation-cap text-primary text-5xl"></i>
+<div class="min-h-screen gradient-bg flex items-center justify-center px-4 py-12 relative overflow-hidden">
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute -top-40 -right-40 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/3 rounded-full blur-3xl"></div>
+    </div>
+
+    <div class="max-w-5xl w-full relative z-10">
+        <div class="text-center mb-14">
+            <div class="inline-flex items-center justify-center w-20 h-20 bg-white/15 backdrop-blur-sm rounded-3xl mb-6 border border-white/20">
+                <i class="fas fa-graduation-cap text-white text-3xl"></i>
             </div>
-            <h1 class="text-5xl font-bold text-white mb-4">UAP SmartCampus</h1>
-            <p class="text-xl text-white/80">Choose your portal to continue</p>
+            <h1 class="text-5xl font-bold text-white mb-3 tracking-tight">UAP SmartCampus</h1>
+            <p class="text-white/60 text-lg">Choose your portal to continue</p>
         </div>
 
-        <!-- Portal Options -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- User Portal -->
-            <a href="{% url 'login' %}" class="group">
-                <div class="bg-white rounded-2xl shadow-2xl p-8 card-hover h-full">
-                    <div class="text-center">
-                        <div class="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary smooth-transition">
-                            <i class="fas fa-user text-primary text-4xl group-hover:text-white smooth-transition"></i>
-                        </div>
-                        <h2 class="text-3xl font-bold text-primary mb-4">User Portal</h2>
-                        <p class="text-gray-600 mb-6">
-                            Access your campus dashboard, view cafeteria menus, check bus schedules, explore clubs and events.
-                        </p>
-                        <ul class="text-left space-y-3 mb-8">
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                Personal Dashboard
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                Cafeteria Menus
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                Bus Schedules
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                Clubs & Events
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                AI Assistant
-                            </li>
-                        </ul>
-                        <div class="px-8 py-4 gradient-bg text-white rounded-xl font-semibold text-lg group-hover:shadow-lg smooth-transition">
-                            Enter User Portal <i class="fas fa-arrow-right ml-2"></i>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <a href="{% url 'login' %}" class="group block">
+                <div class="bg-white rounded-2xl p-8 card-lift border border-gray-100 h-full">
+                    <div class="w-14 h-14 gradient-bg rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
+                        <i class="fas fa-user text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-3">User Portal</h2>
+                    <p class="text-gray-500 text-sm mb-6 leading-relaxed">Access your campus dashboard, view cafeteria menus, check bus schedules, explore clubs and events.</p>
+                    <ul class="space-y-2.5 mb-8">
+                        {% for item in "Personal Dashboard,Cafeteria Menus,Bus Schedules,Clubs & Events,AI Assistant"|split:"," %}
+                        <li class="flex items-center space-x-2.5 text-sm text-gray-600">
+                            <div class="w-5 h-5 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-primary text-xs"></i>
+                            </div>
+                            <span>{{ item }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <span class="text-sm font-semibold text-primary">Enter User Portal</span>
+                        <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-200">
+                            <i class="fas fa-arrow-right text-primary text-xs group-hover:text-white"></i>
                         </div>
                     </div>
                 </div>
             </a>
 
-            <!-- Admin Portal -->
-            <a href="{% url 'admin_login' %}" class="group">
-                <div class="bg-white rounded-2xl shadow-2xl p-8 card-hover h-full">
-                    <div class="text-center">
-                        <div class="w-20 h-20 bg-accent/10 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:bg-primary smooth-transition">
-                            <i class="fas fa-shield-alt text-primary text-4xl group-hover:text-white smooth-transition"></i>
-                        </div>
-                        <h2 class="text-3xl font-bold text-primary mb-4">Admin Portal</h2>
-                        <p class="text-gray-600 mb-6">
-                            Manage campus resources, update cafeteria menus, bus routes, clubs, and events.
-                        </p>
-                        <ul class="text-left space-y-3 mb-8">
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                Manage Menu Items
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                Update Bus Routes
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                Manage Clubs
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                Create Events
-                            </li>
-                            <li class="flex items-center text-gray-700">
-                                <i class="fas fa-check-circle text-primary mr-3"></i>
-                                Content Dashboard
-                            </li>
-                        </ul>
-                        <div class="px-8 py-4 gradient-bg text-white rounded-xl font-semibold text-lg group-hover:shadow-lg smooth-transition">
-                            Enter Admin Portal <i class="fas fa-arrow-right ml-2"></i>
+            <a href="{% url 'admin_login' %}" class="group block">
+                <div class="bg-white rounded-2xl p-8 card-lift border border-gray-100 h-full">
+                    <div class="w-14 h-14 gradient-bg rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200">
+                        <i class="fas fa-shield-alt text-white text-xl"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-3">Admin Portal</h2>
+                    <p class="text-gray-500 text-sm mb-6 leading-relaxed">Manage campus resources, update cafeteria menus, bus routes, clubs, and events.</p>
+                    <ul class="space-y-2.5 mb-8">
+                        {% for item in "Manage Menu Items,Update Bus Routes,Manage Clubs,Create Events,Content Dashboard"|split:"," %}
+                        <li class="flex items-center space-x-2.5 text-sm text-gray-600">
+                            <div class="w-5 h-5 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-primary text-xs"></i>
+                            </div>
+                            <span>{{ item }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <span class="text-sm font-semibold text-primary">Enter Admin Portal</span>
+                        <div class="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-200">
+                            <i class="fas fa-arrow-right text-primary text-xs group-hover:text-white"></i>
                         </div>
                     </div>
                 </div>
             </a>
         </div>
 
-        <!-- Footer -->
-        <p class="text-center text-white/70 mt-12">
-            &copy; 2026 UAP SmartCampus. All rights reserved.
-        </p>
+        <p class="text-center text-white/40 text-sm mt-10">&copy; 2026 UAP SmartCampus. All rights reserved.</p>
     </div>
 </div>
 {% endblock %}

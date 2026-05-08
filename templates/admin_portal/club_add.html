@@ -3,27 +3,28 @@
 {% block title %}Add Club - UAP Admin{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl">
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-8">
-        <h3 class="text-2xl font-bold text-primary mb-6">Add New Club</h3>
-        
-        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+<div class="max-w-2xl">
+    <div class="flex items-center space-x-3 mb-6">
+        <a href="{% url 'admin_clubs' %}" class="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-gray-100 text-gray-400 hover:text-primary smooth-transition shadow-sm">
+            <i class="fas fa-arrow-left text-sm"></i>
+        </a>
+        <h3 class="text-lg font-bold text-gray-800">Add Club</h3>
+    </div>
+    <div class="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+        <form method="POST" enctype="multipart/form-data" class="space-y-5">
             {% csrf_token %}
-            
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Club Name *</label>
-                <input type="text" name="name" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Club Name <span class="text-red-400">*</span></label>
+                <input type="text" name="name" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition bg-gray-50 focus:bg-white">
             </div>
-            
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Description *</label>
-                <textarea name="description" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition"></textarea>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Description <span class="text-red-400">*</span></label>
+                <textarea name="description" rows="4" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition bg-gray-50 focus:bg-white resize-none"></textarea>
             </div>
-            
-            <div class="grid grid-cols-2 gap-6">
+            <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
-                    <select name="category" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">Category <span class="text-red-400">*</span></label>
+                    <select name="category" required class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition bg-gray-50 focus:bg-white">
                         <option value="">Select Category</option>
                         <option value="cultural">Cultural</option>
                         <option value="sports">Sports</option>
@@ -33,35 +34,28 @@
                         <option value="social">Social</option>
                     </select>
                 </div>
-                
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">President</label>
-                    <input type="text" name="president" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">President</label>
+                    <input type="text" name="president" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition bg-gray-50 focus:bg-white">
                 </div>
             </div>
-            
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
-                <input type="email" name="contact_email" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Contact Email</label>
+                <input type="email" name="contact_email" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition bg-gray-50 focus:bg-white">
             </div>
-            
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Logo</label>
-                <input type="file" name="logo" accept="image/*" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition">
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">Logo</label>
+                <input type="file" name="logo" accept="image/*" class="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-primary transition bg-gray-50">
             </div>
-            
-            <div class="flex items-center">
-                <input type="checkbox" name="is_active" id="is_active" checked class="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary">
-                <label for="is_active" class="ml-2 text-sm text-gray-700">Active</label>
+            <div class="flex items-center space-x-2">
+                <input type="checkbox" name="is_active" id="is_active" checked class="w-4 h-4 accent-primary rounded">
+                <label for="is_active" class="text-sm text-gray-700">Active</label>
             </div>
-            
-            <div class="flex space-x-4 pt-4">
-                <button type="submit" class="px-8 py-3 gradient-bg text-white rounded-lg font-medium hover:shadow-lg smooth-transition">
+            <div class="flex space-x-3 pt-2">
+                <button type="submit" class="px-6 py-2.5 gradient-bg text-white rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-primary/25 smooth-transition">
                     <i class="fas fa-save mr-2"></i>Add Club
                 </button>
-                <a href="{% url 'admin_clubs' %}" class="px-8 py-3 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 smooth-transition">
-                    Cancel
-                </a>
+                <a href="{% url 'admin_clubs' %}" class="px-6 py-2.5 bg-gray-100 text-gray-600 rounded-xl text-sm font-medium hover:bg-gray-200 smooth-transition">Cancel</a>
             </div>
         </form>
     </div>
