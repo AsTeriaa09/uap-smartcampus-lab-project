@@ -6,6 +6,7 @@
     <title>{% block title %}UAP SmartCampus{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script>
         tailwind.config = {
             theme: {
@@ -14,6 +15,9 @@
                         primary: '#2f5850',
                         secondary: '#1f514f',
                         accent: '#4b7474',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
                     }
                 }
             }
@@ -21,14 +25,38 @@
     </script>
     {% block extra_head %}{% endblock %}
     <style>
-        /* {% block extra_style %}{% endblock %} */
+        body { font-family: 'Inter', sans-serif; }
         .sidebar-link.active {
-            background-color: #2f5850;
+            background: linear-gradient(135deg, #2f5850, #1f514f);
             color: #fff;
+            box-shadow: 0 4px 15px rgba(47,88,80,0.35);
         }
+        .glass {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255,255,255,0.15);
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #1a3a34 0%, #2f5850 50%, #3d6b62 100%);
+        }
+        .card-lift {
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+        .card-lift:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(47,88,80,0.15);
+        }
+        .smooth { transition: all 0.2s ease; }
+        input:focus, select:focus, textarea:focus {
+            box-shadow: 0 0 0 3px rgba(47,88,80,0.15);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #2f5850; border-radius: 3px; }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="bg-gray-50 antialiased">
     {% block body %}{% endblock %}
 </body>
 </html>
