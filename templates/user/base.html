@@ -1,67 +1,70 @@
 {% extends 'base.html' %}
 
 {% block body %}
-<div class="flex h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-black text-white flex flex-col">
-        <!-- Logo -->
-        <div class="p-6 border-b border-gray-800">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center">
-                    <i class="fas fa-shield-alt text-black text-xl"></i>
+<div id="authoritySidebarOverlay" class="fixed inset-0 z-30 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-200 lg:hidden" aria-hidden="true"></div>
+
+<div class="relative flex min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden">
+    <aside id="authoritySidebar"
+           class="fixed inset-y-0 left-0 z-40 w-64 max-w-[min(16rem,88vw)] bg-black text-white flex flex-col flex-shrink-0 transform -translate-x-full transition-transform duration-200 ease-out lg:relative lg:inset-auto lg:z-auto lg:max-w-none lg:translate-x-0">
+        <div class="p-4 sm:p-6 border-b border-gray-800">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center space-x-3 min-w-0">
+                    <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-shield-alt text-black text-xl"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <h1 class="text-lg sm:text-xl font-bold truncate">Authority Portal</h1>
+                        <p class="text-xs text-gray-400">Management Panel</p>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-xl font-bold">Authority Portal</h1>
-                    <p class="text-xs text-gray-400">Management Panel</p>
-                </div>
+                <button type="button" onclick="closeAuthorityMobileNav()" class="lg:hidden p-2 rounded-lg text-gray-300 hover:bg-gray-800" aria-label="Close menu">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
             </div>
         </div>
 
-        <!-- Navigation -->
-        <nav class="flex-1 p-4 space-y-2">
-            <a href="{% url 'authority_dashboard' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg {% if active_page == 'dashboard' %}bg-white text-black{% else %}text-gray-300 hover:bg-gray-800{% endif %} transition">
-                <i class="fas fa-home w-5"></i>
+        <nav class="flex-1 p-3 sm:p-4 space-y-2 overflow-y-auto">
+            <a href="{% url 'authority_dashboard' %}" onclick="closeAuthorityMobileNavIfNarrow()" class="flex items-center space-x-3 px-4 py-3 rounded-lg {% if active_page == 'dashboard' %}bg-white text-black{% else %}text-gray-300 hover:bg-gray-800{% endif %} transition">
+                <i class="fas fa-home w-5 flex-shrink-0"></i>
                 <span class="font-medium">Dashboard</span>
             </a>
-            <a href="{% url 'authority_menu_list' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg {% if active_page == 'menu' %}bg-white text-black{% else %}text-gray-300 hover:bg-gray-800{% endif %} transition">
-                <i class="fas fa-utensils w-5"></i>
+            <a href="{% url 'authority_menu_list' %}" onclick="closeAuthorityMobileNavIfNarrow()" class="flex items-center space-x-3 px-4 py-3 rounded-lg {% if active_page == 'menu' %}bg-white text-black{% else %}text-gray-300 hover:bg-gray-800{% endif %} transition">
+                <i class="fas fa-utensils w-5 flex-shrink-0"></i>
                 <span class="font-medium">Menu Items</span>
             </a>
-            <a href="{% url 'authority_menu_add' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg {% if active_page == 'add_menu' %}bg-white text-black{% else %}text-gray-300 hover:bg-gray-800{% endif %} transition">
-                <i class="fas fa-plus-circle w-5"></i>
+            <a href="{% url 'authority_menu_add' %}" onclick="closeAuthorityMobileNavIfNarrow()" class="flex items-center space-x-3 px-4 py-3 rounded-lg {% if active_page == 'add_menu' %}bg-white text-black{% else %}text-gray-300 hover:bg-gray-800{% endif %} transition">
+                <i class="fas fa-plus-circle w-5 flex-shrink-0"></i>
                 <span class="font-medium">Add Menu Item</span>
             </a>
         </nav>
 
-        <!-- Back to Site -->
-        <div class="p-4 border-t border-gray-800">
-            <a href="{% url 'dashboard' %}" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 transition">
-                <i class="fas fa-arrow-left w-5"></i>
+        <div class="p-3 sm:p-4 border-t border-gray-800">
+            <a href="{% url 'dashboard' %}" onclick="closeAuthorityMobileNavIfNarrow()" class="flex items-center space-x-3 px-4 py-3 rounded-lg text-gray-300 hover:bg-gray-800 transition">
+                <i class="fas fa-arrow-left w-5 flex-shrink-0"></i>
                 <span class="font-medium">Back to Site</span>
             </a>
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col overflow-hidden bg-gray-50">
-        <!-- Header -->
-        <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <h2 class="text-xl font-semibold text-black">{{ page_title }}</h2>
+    <div class="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden bg-gray-50 w-full">
+        <header class="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-2 flex-shrink-0">
+            <div class="flex items-center space-x-2 sm:space-x-4 min-w-0">
+                <button type="button" onclick="openAuthorityMobileNav()" class="lg:hidden p-2 -ml-1 text-gray-700 hover:bg-gray-100 rounded-lg flex-shrink-0" aria-label="Open menu">
+                    <i class="fas fa-bars text-lg"></i>
+                </button>
+                <h2 class="text-lg sm:text-xl font-semibold text-black truncate">{{ page_title }}</h2>
             </div>
 
-            <!-- User Avatar Dropdown -->
-            <div class="relative">
-                <button onclick="toggleDropdown()" class="flex items-center space-x-3 focus:outline-none">
-                    <div class="w-10 h-10 bg-black rounded-full flex items-center justify-center text-white font-semibold">
+            <div class="relative flex-shrink-0">
+                <button onclick="toggleDropdown()" class="flex items-center space-x-2 sm:space-x-3 focus:outline-none">
+                    <div class="w-9 h-9 sm:w-10 sm:h-10 bg-black rounded-full flex items-center justify-center text-white font-semibold text-sm">
                         {{ user.username|first|upper }}
                     </div>
-                    <span class="text-gray-700 font-medium">{{ user.username }}</span>
-                    <i class="fas fa-chevron-down text-gray-500 text-sm"></i>
+                    <span class="text-gray-700 font-medium hidden sm:inline max-w-[30vw] truncate">{{ user.username }}</span>
+                    <i class="fas fa-chevron-down text-gray-500 text-sm hidden sm:inline"></i>
                 </button>
-                
-                <!-- Dropdown Menu -->
-                <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+
+                <div id="userDropdown" class="hidden absolute right-0 mt-2 w-48 max-w-[calc(100vw-2rem)] bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
                     <a href="{% url 'authority_logout' %}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition">
                         <i class="fas fa-sign-out-alt mr-2"></i>Logout
                     </a>
@@ -69,24 +72,53 @@
             </div>
         </header>
 
-        <!-- Page Content -->
-        <main class="flex-1 overflow-y-auto p-6">
+        <main class="flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6">
             {% if messages %}
             <div class="mb-4 space-y-2">
                 {% for message in messages %}
-                <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-500 text-white{% elif message.tags == 'success' %}bg-green-500 text-white{% else %}bg-gray-200 text-gray-800{% endif %}">
+                <div class="p-3 sm:p-4 rounded-lg break-words {% if message.tags == 'error' %}bg-red-500 text-white{% elif message.tags == 'success' %}bg-green-500 text-white{% else %}bg-gray-200 text-gray-800{% endif %}">
                     {{ message }}
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
-            
+
             {% block content %}{% endblock %}
         </main>
     </div>
 </div>
 
 <script>
+function openAuthorityMobileNav() {
+    var side = document.getElementById('authoritySidebar');
+    var ov = document.getElementById('authoritySidebarOverlay');
+    if (!side || !ov) return;
+    side.classList.remove('-translate-x-full');
+    side.classList.add('translate-x-0');
+    ov.classList.remove('opacity-0', 'pointer-events-none');
+    ov.classList.add('opacity-100');
+    ov.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('overflow-hidden');
+}
+function closeAuthorityMobileNav() {
+    var side = document.getElementById('authoritySidebar');
+    var ov = document.getElementById('authoritySidebarOverlay');
+    if (!side || !ov) return;
+    side.classList.add('-translate-x-full');
+    side.classList.remove('translate-x-0');
+    ov.classList.add('opacity-0', 'pointer-events-none');
+    ov.classList.remove('opacity-100');
+    ov.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('overflow-hidden');
+}
+function closeAuthorityMobileNavIfNarrow() {
+    if (window.innerWidth < 1024) closeAuthorityMobileNav();
+}
+document.getElementById('authoritySidebarOverlay').addEventListener('click', closeAuthorityMobileNav);
+window.addEventListener('resize', function() {
+    if (window.innerWidth >= 1024) closeAuthorityMobileNav();
+});
+
 function toggleDropdown() {
     const dropdown = document.getElementById('userDropdown');
     dropdown.classList.toggle('hidden');

@@ -6,12 +6,12 @@
 {% block content %}
 <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-between">
-        <div>
-            <h2 class="text-2xl font-bold text-black mb-2">Events & Clubs 🎉</h2>
-            <p class="text-gray-600">Discover campus events, clubs, and activities.</p>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="min-w-0">
+            <h2 class="text-xl sm:text-2xl font-bold text-black mb-2">Events & Clubs 🎉</h2>
+            <p class="text-gray-600 text-sm sm:text-base">Discover campus events, clubs, and activities.</p>
         </div>
-        <a href="{% url 'my_registered_events' %}" class="inline-flex items-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition">
+        <a href="{% url 'my_registered_events' %}" class="inline-flex items-center justify-center px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm whitespace-nowrap shrink-0">
             <i class="fas fa-ticket-alt mr-2"></i>My Registrations
         </a>
     </div>
@@ -19,7 +19,7 @@
     <!-- Tabs -->
     <div class="bg-white rounded-lg shadow-sm border border-gray-200">
         <div class="border-b border-gray-200">
-            <nav class="flex space-x-8 px-6" aria-label="Tabs">
+            <nav class="flex overflow-x-auto gap-4 sm:space-x-8 px-4 sm:px-6" aria-label="Tabs">
                 <button onclick="switchTab('clubs')" id="tab-clubs" class="tab-btn py-4 px-1 border-b-2 font-medium text-sm border-primary text-primary">
                     <i class="fas fa-users mr-2"></i>Clubs
                 </button>
