@@ -5,15 +5,15 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <div class="pl-8">
-                    <h2 class="text-2xl font-bold text-primary">Welcome back, {{ user.username }}! 👋</h2>
-                    <p class="text-gray-600">Here's what's happening on your campus today.</p>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-center space-x-4 min-w-0">
+                <div class="pl-0 sm:pl-4 lg:pl-8 min-w-0">
+                    <h2 class="text-xl sm:text-2xl font-bold text-primary break-words">Welcome back, {{ user.username }}! 👋</h2>
+                    <p class="text-gray-600 text-sm sm:text-base">Here's what's happening on your campus today.</p>
                 </div>
             </div>
-            <div class="hidden lg:block">
+            <div class="hidden lg:block flex-shrink-0">
                 <img src="{% static 'smartcampus/images/welcome.png' %}" alt="Welcome" class="w-40 h-36 object-cover rounded-lg">
             </div>
         </div>
@@ -92,16 +92,16 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
             <h3 class="text-xl font-bold text-primary">My Registered Events</h3>
-            <a href="{% url 'my_registered_events' %}" class="text-sm text-primary hover:underline">View All</a>
+            <a href="{% url 'my_registered_events' %}" class="text-sm text-primary hover:underline shrink-0">View All</a>
         </div>
         {% if registered_events %}
         <div class="space-y-3">
             {% for reg in registered_events %}
-            <div class="flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
-                <div>
-                    <h4 class="font-semibold text-gray-800">{{ reg.event.title }}</h4>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-accent/10 rounded-lg border-l-4 border-primary">
+                <div class="min-w-0">
+                    <h4 class="font-semibold text-gray-800 break-words">{{ reg.event.title }}</h4>
                     <p class="text-sm text-gray-600">
                         <i class="fas fa-users mr-1 text-primary"></i>{{ reg.event.club.name }}
                         <span class="mx-2">|</span>
@@ -111,7 +111,7 @@
                         Reg: {{ reg.registration_number }} | {{ reg.department }} | {{ reg.edu_email }}
                     </p>
                 </div>
-                <div class="text-right">
+                <div class="text-left sm:text-right flex-shrink-0">
                     <span class="inline-block px-3 py-1 bg-primary text-white text-xs rounded-full">
                         {{ reg.event.event_date|date:"M d" }}
                     </span>
@@ -132,24 +132,24 @@
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div class="flex items-center justify-between mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
             <h3 class="text-xl font-bold text-primary">My Todos</h3>
-            <button onclick="openAddTodoModal()" class="flex items-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm">
+            <button onclick="openAddTodoModal()" class="flex items-center justify-center space-x-2 px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary/90 transition text-sm w-full sm:w-auto">
                 <i class="fas fa-plus"></i>
                 <span>Add Todo</span>
             </button>
         </div>
 
-        <div class="flex space-x-4 mb-6 border-b border-gray-200">
-            <button onclick="switchTab('all')" id="tab-all" class="tab-btn px-4 py-2 font-medium text-primary border-b-2 border-primary transition">All</button>
-            <button onclick="switchTab('assignment')" id="tab-assignment" class="tab-btn px-4 py-2 font-medium text-gray-600 hover:text-primary transition">Assignments</button>
-            <button onclick="switchTab('exam')" id="tab-exam" class="tab-btn px-4 py-2 font-medium text-gray-600 hover:text-primary transition">Exams</button>
+        <div class="flex flex-wrap gap-2 sm:gap-0 sm:space-x-4 mb-6 border-b border-gray-200 overflow-x-auto pb-1 -mx-1 px-1">
+            <button onclick="switchTab('all')" id="tab-all" class="tab-btn px-3 sm:px-4 py-2 font-medium text-sm sm:text-base text-primary border-b-2 border-primary transition whitespace-nowrap">All</button>
+            <button onclick="switchTab('assignment')" id="tab-assignment" class="tab-btn px-3 sm:px-4 py-2 font-medium text-sm sm:text-base text-gray-600 hover:text-primary transition whitespace-nowrap">Assignments</button>
+            <button onclick="switchTab('exam')" id="tab-exam" class="tab-btn px-3 sm:px-4 py-2 font-medium text-sm sm:text-base text-gray-600 hover:text-primary transition whitespace-nowrap">Exams</button>
         </div>
 
         <div id="todo-list" class="space-y-3">
             {% for todo in todos %}
-            <div class="todo-item flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 {% if todo.todo_type == 'exam' %}border-secondary{% else %}border-primary{% endif %} {% if todo.is_completed %}opacity-60{% endif %}" data-id="{{ todo.id }}" data-type="{{ todo.todo_type }}">
-                <div class="flex items-start space-x-3">
+            <div class="todo-item flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-accent/10 rounded-lg border-l-4 {% if todo.todo_type == 'exam' %}border-secondary{% else %}border-primary{% endif %} {% if todo.is_completed %}opacity-60{% endif %}" data-id="{{ todo.id }}" data-type="{{ todo.todo_type }}">
+                <div class="flex items-start space-x-3 min-w-0 flex-1">
                     <input type="checkbox" onchange="toggleTodo({{ todo.id }}, this)" class="mt-1 w-4 h-4 accent-primary cursor-pointer" {% if todo.is_completed %}checked="checked"{% endif %}>
                     <div>
                         <h4 class="todo-title font-semibold text-gray-800 {% if todo.is_completed %}line-through text-gray-400{% endif %}">{{ todo.title }}</h4>
@@ -157,7 +157,7 @@
                         <span class="inline-block mt-2 px-3 py-1 {% if todo.todo_type == 'exam' %}bg-secondary{% else %}bg-primary{% endif %} text-white text-xs rounded-full">{{ todo.get_todo_type_display }}</span>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="todo-actions flex items-center justify-end sm:justify-start flex-wrap gap-2 sm:space-x-3 sm:gap-0 flex-shrink-0">
                     {% if todo.due_date %}<span class="todo-due text-sm text-gray-500">Due: {{ todo.due_date|date:"M d" }}</span>{% endif %}
                     <button class="edit-btn text-green-400 hover:text-green-600 transition"
                             data-id="{{ todo.id }}"
@@ -351,16 +351,16 @@ function submitTodo(e) {
             const typeLabel = isExam ? 'Exam' : 'Assignment';
             const emptyState = document.getElementById('empty-state');
             if (emptyState) emptyState.remove();
-            const html = `<div class="todo-item flex items-center justify-between p-4 bg-accent/10 rounded-lg border-l-4 ${borderColor}" data-id="${todo.id}" data-type="${todo.todo_type}">
-                <div class="flex items-start space-x-3">
-                    <input type="checkbox" onchange="toggleTodo(${todo.id}, this)" class="mt-1 w-4 h-4 accent-primary cursor-pointer">
-                    <div>
+            const html = `<div class="todo-item flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 bg-accent/10 rounded-lg border-l-4 ${borderColor}" data-id="${todo.id}" data-type="${todo.todo_type}">
+                <div class="flex items-start space-x-3 min-w-0 flex-1">
+                    <input type="checkbox" onchange="toggleTodo(${todo.id}, this)" class="mt-1 w-4 h-4 accent-primary cursor-pointer flex-shrink-0">
+                    <div class="min-w-0">
                         <h4 class="todo-title font-semibold text-gray-800">${todo.title}</h4>
                         ${todo.description ? `<p class="todo-desc text-sm text-gray-600">${todo.description}</p>` : ''}
                         <span class="inline-block mt-2 px-3 py-1 ${badgeColor} text-white text-xs rounded-full">${typeLabel}</span>
                     </div>
                 </div>
-                <div class="flex items-center space-x-3">
+                <div class="todo-actions flex items-center justify-end sm:justify-start flex-wrap gap-2 sm:space-x-3 sm:gap-0 flex-shrink-0">
                     ${todo.due_date ? `<span class="todo-due text-sm text-gray-500">Due: ${todo.due_date}</span>` : ''}
                     <button class="edit-btn text-green-400 hover:text-green-600 transition"
                             data-id="${todo.id}"
@@ -417,7 +417,7 @@ function submitEditTodo(e) {
                 if (dueEl) {
                     dueEl.textContent = `Due: ${todo.due_date}`;
                 } else {
-                    el.querySelector('.flex.items-center.space-x-3').insertAdjacentHTML('afterbegin', `<span class="todo-due text-sm text-gray-500">Due: ${todo.due_date}</span>`);
+                    el.querySelector('.todo-actions').insertAdjacentHTML('afterbegin', `<span class="todo-due text-sm text-gray-500">Due: ${todo.due_date}</span>`);
                 }
             } else if (dueEl) {
                 dueEl.remove();

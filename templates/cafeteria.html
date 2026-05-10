@@ -53,11 +53,11 @@
                         <label class="text-sm text-gray-600">Qty:</label>
                         <input type="number" id="qty-{{ item.id }}" value="1" min="1" max="10" class="w-16 px-2 py-2 border border-gray-300 rounded-lg text-center">
                     </div>
-                    <div class="flex items-center space-x-2">
+                    <div class="flex flex-col sm:flex-row gap-2 sm:gap-0 sm:space-x-2">
                         <button data-item-id="{{ item.id }}" class="add-to-cart-btn flex-1 px-4 py-2 bg-primary text-white rounded-lg hover:bg-secondary transition font-medium text-sm">
                             <i class="fas fa-cart-plus mr-1"></i>Add to Cart
                         </button>
-                        <form method="POST" action="{% url 'order_now' item.id %}" class="flex-1">
+                        <form method="POST" action="{% url 'order_now' item.id %}" class="flex-1 min-w-0">
                             {% csrf_token %}
                             <input type="hidden" name="quantity" id="order-qty-{{ item.id }}" value="1">
                             <button type="submit" class="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-medium text-sm">
